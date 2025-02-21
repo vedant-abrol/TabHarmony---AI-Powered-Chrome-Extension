@@ -1,13 +1,15 @@
 
 :root {
-  --background: #F0F8FF;
-  --accent: #1E90FF;
-  --text: #004080;
-  --highlights: #87CEEB;
-  --shadow: rgba(0, 64, 128, 0.1);
-  --glass: rgba(255, 255, 255, 0.9);
-  --danger: #ff4444;
-  --success: #00C851;
+  --background: #1a1f2c;
+  --accent: #3b82f6;
+  --text: #e2e8f0;
+  --highlights: #4f46e5;
+  --shadow: rgba(0, 0, 0, 0.2);
+  --glass: rgba(30, 41, 59, 0.7);
+  --danger: #ef4444;
+  --success: #22c55e;
+  --border: rgba(255, 255, 255, 0.1);
+  --card-bg: rgba(30, 41, 59, 0.8);
 }
 
 * {
@@ -43,10 +45,11 @@ header {
   display: flex;
   align-items: center;
   background: var(--glass);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 4px;
-  box-shadow: 0 2px 8px var(--shadow);
+  box-shadow: 0 4px 12px var(--shadow);
   backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
 }
 
 .search-input {
@@ -70,7 +73,7 @@ header {
   padding: 8px;
   cursor: pointer;
   color: var(--text);
-  border-radius: 6px;
+  border-radius: 8px;
   transition: all 0.2s ease;
 }
 
@@ -85,6 +88,20 @@ main {
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
+  padding-right: 4px;
+}
+
+main::-webkit-scrollbar {
+  width: 6px;
+}
+
+main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+main::-webkit-scrollbar-thumb {
+  background: var(--glass);
+  border-radius: 3px;
 }
 
 .primary-button {
@@ -92,7 +109,7 @@ main {
   color: white;
   border: none;
   padding: 12px 24px;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
@@ -101,12 +118,13 @@ main {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 2px 8px var(--shadow);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .primary-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--shadow);
+  box-shadow: 0 6px 16px var(--shadow);
+  background: var(--highlights);
 }
 
 .primary-button:active {
@@ -116,9 +134,9 @@ main {
 .secondary-button {
   background: transparent;
   color: var(--text);
-  border: 1px solid var(--text);
+  border: 1px solid var(--border);
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -126,8 +144,8 @@ main {
 }
 
 .secondary-button:hover {
-  background: var(--text);
-  color: white;
+  background: var(--glass);
+  border-color: var(--accent);
 }
 
 .danger-button {
@@ -135,7 +153,7 @@ main {
   color: white;
   border: none;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -143,7 +161,8 @@ main {
 }
 
 .danger-button:hover {
-  background: #ff0000;
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
 
 .success-button {
@@ -151,7 +170,7 @@ main {
   color: white;
   border: none;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -159,28 +178,36 @@ main {
 }
 
 .success-button:hover {
-  background: #00994C;
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
 
 .button-group {
   display: flex;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
 }
 
 .tab-groups {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .tab-group {
-  background: var(--glass);
-  border-radius: 12px;
+  background: var(--card-bg);
+  border-radius: 16px;
   padding: 16px;
   box-shadow: 0 4px 12px var(--shadow);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.tab-group:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--shadow);
 }
 
 .tab-group-header {
@@ -206,11 +233,12 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--glass);
+  border: 1px solid var(--border);
 }
 
 .tab-item:hover {
@@ -236,6 +264,7 @@ main {
   display: flex;
   justify-content: space-between;
   margin-bottom: 16px;
+  gap: 12px;
 }
 
 .loading-spinner {

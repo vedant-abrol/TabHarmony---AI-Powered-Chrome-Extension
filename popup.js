@@ -4,28 +4,18 @@ class TabHarmonyUI {
   constructor() {
     this.searchInput = document.getElementById('searchInput');
     this.searchButton = document.getElementById('searchButton');
-    this.settingsButton = document.getElementById('settingsButton');
     this.organizeButton = document.getElementById('organizeButton');
     this.tabGroups = document.getElementById('tabGroups');
-    this.settingsModal = document.getElementById('settingsModal');
-    this.apiKeyInput = document.getElementById('apiKey');
-    this.saveSettings = document.getElementById('saveSettings');
-    this.closeSettings = document.getElementById('closeSettings');
-    this.loadingSpinner = document.querySelector('.loading-spinner');
-    this.buttonText = document.querySelector('.button-text');
-
+    this.loadingSpinner = this.organizeButton.querySelector('.loading-spinner');
+    this.buttonText = this.organizeButton.querySelector('.button-text');
+    
     this.setupEventListeners();
-    this.checkApiKey();
   }
 
   async setupEventListeners() {
-    this.settingsButton.addEventListener('click', () => this.toggleSettings());
-    this.closeSettings.addEventListener('click', () => this.toggleSettings());
-    this.saveSettings.addEventListener('click', () => this.saveApiKey());
     this.organizeButton.addEventListener('click', () => this.organizeTabs());
     this.searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
     this.searchButton.addEventListener('click', () => this.handleSearch(this.searchInput.value));
-    
     document.getElementById('ungroupAllButton').addEventListener('click', () => this.ungroupAllTabs());
   }
 
