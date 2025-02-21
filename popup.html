@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TabHarmony</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search tabs..." class="search-input">
+        <button id="searchButton" class="icon-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+      </div>
+      <button id="settingsButton" class="icon-button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"></path>
+          <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
+          <path d="M12 2v2"></path>
+          <path d="M12 20v2"></path>
+          <path d="m4.93 4.93 1.41 1.41"></path>
+          <path d="m17.66 17.66 1.41 1.41"></path>
+          <path d="M2 12h2"></path>
+          <path d="M20 12h2"></path>
+          <path d="m6.34 17.66-1.41 1.41"></path>
+          <path d="m19.07 4.93-1.41 1.41"></path>
+        </svg>
+      </button>
+    </header>
+
+    <main>
+      <button id="organizeButton" class="primary-button">
+        <span class="button-text">Organize Tabs</span>
+        <div class="loading-spinner hidden"></div>
+      </button>
+
+      <div id="tabGroups" class="tab-groups"></div>
+    </main>
+
+    <div id="settingsModal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Settings</h2>
+        <div class="form-group">
+          <label for="apiKey">OpenAI API Key</label>
+          <input type="password" id="apiKey" placeholder="Enter your API key">
+        </div>
+        <div class="button-group">
+          <button id="saveSettings" class="primary-button">Save</button>
+          <button id="closeSettings" class="secondary-button">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="config.js" type="module"></script>
+  <script src="popup.js" type="module"></script>
+</body>
+</html>
