@@ -1,4 +1,3 @@
-
 import Config from './config.js';
 
 class TabHarmonyUI {
@@ -26,6 +25,8 @@ class TabHarmonyUI {
     this.organizeButton.addEventListener('click', () => this.organizeTabs());
     this.searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
     this.searchButton.addEventListener('click', () => this.handleSearch(this.searchInput.value));
+    
+    document.getElementById('ungroupAllButton').addEventListener('click', () => this.ungroupAllTabs());
   }
 
   async checkApiKey() {
@@ -121,27 +122,22 @@ class TabHarmonyUI {
 
   parseAIResponse(response, tabs) {
     try {
-      // Try to parse the AI response as JSON first
       const groupings = JSON.parse(response);
       const result = {};
       
-      // Convert the AI's category assignments into our group format
       for (const [category, tabIndices] of Object.entries(groupings)) {
         result[category] = tabIndices.map(index => tabs[index]);
       }
       
       return result;
     } catch (error) {
-      // Fallback categorization if JSON parsing fails
       const domains = new Map();
       
-      // Group by domain first
       tabs.forEach(tab => {
         try {
           const url = new URL(tab.url);
           const domain = url.hostname.replace('www.', '');
           
-          // Extract meaningful category names from domains
           let category = domain.split('.')[0];
           category = category.charAt(0).toUpperCase() + category.slice(1);
           
@@ -167,14 +163,11 @@ class TabHarmonyUI {
 
       const tabIds = tabs.map(tab => tab.id);
       
-      // Create a new tab group
       const groupId = await chrome.tabs.group({ tabIds });
       
-      // Generate a consistent color based on the category name
       const colors = ['blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'];
       const colorIndex = Math.abs(category.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % colors.length;
       
-      // Update the group with title and color
       await chrome.tabGroups.update(groupId, {
         title: category,
         color: colors[colorIndex]
@@ -198,6 +191,42 @@ class TabHarmonyUI {
         <span class="tab-count">${tabs.length} tabs</span>
       `;
 
+      const buttonGroup = document.createElement('div');
+      buttonGroup.className = 'button-group';
+
+      const openNewWindowButton = document.createElement('button');
+      openNewWindowButton.className = 'success-button';
+      openNewWindowButton.textContent = 'Open in New Window';
+      openNewWindowButton.addEventListener('click', async () => {
+        const tabIds = tabs.map(tab => tab.id);
+        const newWindow = await chrome.windows.create({ tabId: tabIds[0] });
+        if (tabIds.length > 1) {
+          await chrome.tabs.move(tabIds.slice(1), { windowId: newWindow.id, index: -1 });
+        }
+      });
+
+      const closeAllButton = document.createElement('button');
+      closeAllButton.className = 'danger-button';
+      closeAllButton.textContent = 'Close All';
+      closeAllButton.addEventListener('click', async () => {
+        const tabIds = tabs.map(tab => tab.id);
+        await chrome.tabs.remove(tabIds);
+        groupElement.remove();
+      });
+
+      const groupTabsButton = document.createElement('button');
+      groupTabsButton.className = 'secondary-button';
+      groupTabsButton.textContent = 'Group Tabs';
+      groupTabsButton.addEventListener('click', async () => {
+        const tabIds = tabs.map(tab => tab.id);
+        const groupId = await chrome.tabs.group({ tabIds });
+        await chrome.tabGroups.update(groupId, { title: category });
+      });
+
+      buttonGroup.appendChild(openNewWindowButton);
+      buttonGroup.appendChild(closeAllButton);
+      buttonGroup.appendChild(groupTabsButton);
+
       const tabList = document.createElement('div');
       tabList.className = 'tab-list';
 
@@ -213,6 +242,7 @@ class TabHarmonyUI {
       });
 
       groupElement.appendChild(header);
+      groupElement.appendChild(buttonGroup);
       groupElement.appendChild(tabList);
       this.tabGroups.appendChild(groupElement);
     }
@@ -256,10 +286,8 @@ class TabHarmonyUI {
       let relevantIndices = [];
       
       try {
-        // Try to parse the AI response as a JSON array of indices
         relevantIndices = JSON.parse(data.choices[0].message.content);
       } catch (e) {
-        // Fallback to simple text search if AI response parsing fails
         relevantIndices = tabs.map((tab, index) => ({
           index,
           score: (tab.title.toLowerCase().includes(query.toLowerCase()) || 
@@ -269,7 +297,6 @@ class TabHarmonyUI {
         .map(item => item.index);
       }
 
-      // Clear existing groups and display search results
       this.tabGroups.innerHTML = '';
       
       const searchGroup = document.createElement('div');
@@ -305,6 +332,12 @@ class TabHarmonyUI {
       console.error('Search error:', error);
       alert('Error performing search. Please try again.');
     }
+  }
+
+  async ungroupAllTabs() {
+    const tabs = await chrome.tabs.query({ currentWindow: true });
+    const tabIds = tabs.map(tab => tab.id);
+    await chrome.tabs.ungroup(tabIds);
   }
 }
 

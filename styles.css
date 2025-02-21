@@ -6,6 +6,8 @@
   --highlights: #87CEEB;
   --shadow: rgba(0, 64, 128, 0.1);
   --glass: rgba(255, 255, 255, 0.9);
+  --danger: #ff4444;
+  --success: #00C851;
 }
 
 * {
@@ -115,9 +117,9 @@ main {
   background: transparent;
   color: var(--text);
   border: 1px solid var(--text);
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -128,6 +130,44 @@ main {
   color: white;
 }
 
+.danger-button {
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.danger-button:hover {
+  background: #ff0000;
+}
+
+.success-button {
+  background: var(--success);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.success-button:hover {
+  background: #00994C;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .tab-groups {
   display: flex;
   flex-direction: column;
@@ -136,22 +176,24 @@ main {
 
 .tab-group {
   background: var(--glass);
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 2px 8px var(--shadow);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px var(--shadow);
   backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .tab-group-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .tab-group-title {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text);
+  font-size: 16px;
 }
 
 .tab-list {
@@ -168,11 +210,13 @@ main {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .tab-item:hover {
   background: var(--highlights);
   color: white;
+  transform: translateX(4px);
 }
 
 .tab-favicon {
@@ -188,65 +232,10 @@ main {
   text-overflow: ellipsis;
 }
 
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+.actions-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(5px);
-}
-
-.modal-content {
-  background: var(--glass);
-  padding: 24px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 360px;
-  box-shadow: 0 4px 16px var(--shadow);
-  backdrop-filter: blur(10px);
-}
-
-.modal h2 {
+  justify-content: space-between;
   margin-bottom: 16px;
-  color: var(--text);
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--text);
-  font-weight: 500;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--highlights);
-  border-radius: 6px;
-  font-size: 14px;
-  color: var(--text);
-  background: transparent;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.form-group input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--highlights);
-}
-
-.button-group {
-  display: flex;
-  gap: 8px;
 }
 
 .loading-spinner {
