@@ -73,6 +73,7 @@ class TabHarmonyUI {
       this.setLoading(true);
       const tabs = await chrome.tabs.query({ currentWindow: true });
       const groupedTabs = await this.analyzeAndGroupTabs(tabs);
+      await this.createChromeTabGroups(groupedTabs);
       await this.displayTabGroups(groupedTabs);
     } catch (error) {
       console.error('Error organizing tabs:', error);
@@ -104,11 +105,11 @@ class TabHarmonyUI {
         messages: [
           {
             role: "system",
-            content: "You are a tab organization assistant. Given a list of browser tabs, group them into logical categories."
+            content: "You are a tab organization assistant. Analyze the provided tabs and group them into meaningful categories based on their content and purpose. Return the result as a JSON object where keys are category names and values are arrays of tab indices. Be specific with categories, don't use generic terms like 'Other'."
           },
           {
             role: "user",
-            content: `Please analyze and group these tabs into categories: ${JSON.stringify(tabData)}`
+            content: `Analyze and group these tabs into specific categories. Consider the content, domain, and purpose of each tab: ${JSON.stringify(tabData)}`
           }
         ]
       })
@@ -119,32 +120,66 @@ class TabHarmonyUI {
   }
 
   parseAIResponse(response, tabs) {
-    // This is a simplified implementation. In practice, you'd want to parse the AI's
-    // response more robustly based on its actual format
-    const groups = {
-      'Work': [],
-      'Social': [],
-      'Shopping': [],
-      'News': [],
-      'Other': []
-    };
-
-    tabs.forEach(tab => {
-      const url = tab.url.toLowerCase();
-      if (url.includes('github.com') || url.includes('docs.')) {
-        groups['Work'].push(tab);
-      } else if (url.includes('facebook.com') || url.includes('twitter.com')) {
-        groups['Social'].push(tab);
-      } else if (url.includes('amazon.com') || url.includes('shop')) {
-        groups['Shopping'].push(tab);
-      } else if (url.includes('news')) {
-        groups['News'].push(tab);
-      } else {
-        groups['Other'].push(tab);
+    try {
+      // Try to parse the AI response as JSON first
+      const groupings = JSON.parse(response);
+      const result = {};
+      
+      // Convert the AI's category assignments into our group format
+      for (const [category, tabIndices] of Object.entries(groupings)) {
+        result[category] = tabIndices.map(index => tabs[index]);
       }
-    });
+      
+      return result;
+    } catch (error) {
+      // Fallback categorization if JSON parsing fails
+      const domains = new Map();
+      
+      // Group by domain first
+      tabs.forEach(tab => {
+        try {
+          const url = new URL(tab.url);
+          const domain = url.hostname.replace('www.', '');
+          
+          // Extract meaningful category names from domains
+          let category = domain.split('.')[0];
+          category = category.charAt(0).toUpperCase() + category.slice(1);
+          
+          if (!domains.has(category)) {
+            domains.set(category, []);
+          }
+          domains.get(category).push(tab);
+        } catch (e) {
+          if (!domains.has('Uncategorized')) {
+            domains.set('Uncategorized', []);
+          }
+          domains.get('Uncategorized').push(tab);
+        }
+      });
+      
+      return Object.fromEntries(domains);
+    }
+  }
 
-    return groups;
+  async createChromeTabGroups(groups) {
+    for (const [category, tabs] of Object.entries(groups)) {
+      if (tabs.length === 0) continue;
+
+      const tabIds = tabs.map(tab => tab.id);
+      
+      // Create a new tab group
+      const groupId = await chrome.tabs.group({ tabIds });
+      
+      // Generate a consistent color based on the category name
+      const colors = ['blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'];
+      const colorIndex = Math.abs(category.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % colors.length;
+      
+      // Update the group with title and color
+      await chrome.tabGroups.update(groupId, {
+        title: category,
+        color: colors[colorIndex]
+      });
+    }
   }
 
   async displayTabGroups(groups) {
@@ -192,6 +227,10 @@ class TabHarmonyUI {
       const tabs = await chrome.tabs.query({ currentWindow: true });
       const apiKey = await Config.getApiKey();
 
+      if (!apiKey) {
+        throw new Error('API key not found');
+      }
+
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -203,18 +242,65 @@ class TabHarmonyUI {
           messages: [
             {
               role: "system",
-              content: "You are a tab search assistant. Help find relevant tabs based on the user's query."
+              content: "You are a tab search assistant. Given a list of tabs and a search query, return the indices of relevant tabs as a JSON array. Consider the content, purpose, and context of the search query."
             },
             {
               role: "user",
-              content: `Find tabs relevant to this query: "${query}". Tabs: ${JSON.stringify(tabs.map(t => ({ title: t.title, url: t.url })))}`
+              content: `Find tabs relevant to this query: "${query}". Return only the array of matching tab indices. Tabs: ${JSON.stringify(tabs.map((t, i) => ({ index: i, title: t.title, url: t.url })))}`
             }
           ]
         })
       });
 
       const data = await response.json();
-      // Implementation of search results display would go here
+      let relevantIndices = [];
+      
+      try {
+        // Try to parse the AI response as a JSON array of indices
+        relevantIndices = JSON.parse(data.choices[0].message.content);
+      } catch (e) {
+        // Fallback to simple text search if AI response parsing fails
+        relevantIndices = tabs.map((tab, index) => ({
+          index,
+          score: (tab.title.toLowerCase().includes(query.toLowerCase()) || 
+                 tab.url.toLowerCase().includes(query.toLowerCase())) ? 1 : 0
+        }))
+        .filter(item => item.score > 0)
+        .map(item => item.index);
+      }
+
+      // Clear existing groups and display search results
+      this.tabGroups.innerHTML = '';
+      
+      const searchGroup = document.createElement('div');
+      searchGroup.className = 'tab-group';
+      
+      const header = document.createElement('div');
+      header.className = 'tab-group-header';
+      header.innerHTML = `
+        <h3 class="tab-group-title">Search Results</h3>
+        <span class="tab-count">${relevantIndices.length} matches</span>
+      `;
+
+      const tabList = document.createElement('div');
+      tabList.className = 'tab-list';
+
+      relevantIndices.forEach(index => {
+        const tab = tabs[index];
+        const tabElement = document.createElement('div');
+        tabElement.className = 'tab-item';
+        tabElement.innerHTML = `
+          <img src="${tab.favIconUrl || 'icon.png'}" class="tab-favicon" alt="favicon">
+          <span class="tab-title">${tab.title}</span>
+        `;
+        tabElement.addEventListener('click', () => chrome.tabs.update(tab.id, { active: true }));
+        tabList.appendChild(tabElement);
+      });
+
+      searchGroup.appendChild(header);
+      searchGroup.appendChild(tabList);
+      this.tabGroups.appendChild(searchGroup);
+
     } catch (error) {
       console.error('Search error:', error);
       alert('Error performing search. Please try again.');
