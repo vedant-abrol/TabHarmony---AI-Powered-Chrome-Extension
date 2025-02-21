@@ -1,69 +1,170 @@
-# Welcome to your Lovable project
 
-## Project info
+# TabHarmony: AI-Powered Tab Organization Chrome Extension
 
-**URL**: https://lovable.dev/projects/69c8c941-7344-4b44-af15-8d7452208d79
+## Overview
+TabHarmony is an intelligent Chrome extension that uses OpenAI's GPT API to automatically organize and manage your browser tabs. It helps users maintain a clean and organized browsing experience by intelligently grouping related tabs and providing natural language search capabilities.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+### 1. Intelligent Tab Organization
+- **AI-Powered Grouping**: Uses OpenAI's GPT API to analyze tab content and group similar tabs together
+- **Automatic Categories**: Creates logical categories based on tab content (Work, Social, Shopping, News, etc.)
+- **Visual Organization**: Groups tabs with clear visual separation and intuitive interface
 
-**Use Lovable**
+### 2. Smart Search
+- **Natural Language Search**: Search your tabs using everyday language
+- **AI Understanding**: Leverages GPT to understand the context of your search queries
+- **Real-time Results**: Instantly highlights and suggests relevant tabs
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/69c8c941-7344-4b44-af15-8d7452208d79) and start prompting.
+### 3. User Interface
+- **Clean Design**: Modern, minimalist interface with a beautiful blue theme
+- **Glass Morphism**: Contemporary design with subtle transparency effects
+- **Responsive Animations**: Smooth transitions and loading states for better UX
 
-Changes made via Lovable will be committed automatically to this repo.
+### 4. Security
+- **Secure API Key Storage**: Safely stores your OpenAI API key in Chrome's secure storage
+- **Privacy-Focused**: No data collection or external storage of browsing history
+- **Local Processing**: All tab organization happens locally in your browser
 
-**Use your preferred IDE**
+## Technical Details
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Core Components
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. **popup.html & styles.css**
+   - Main user interface
+   - Glass morphism design elements
+   - Responsive layout (400x500px)
+   - Custom color scheme:
+     - Background: #F0F8FF
+     - Accent: #1E90FF
+     - Text: #004080
+     - Highlights: #87CEEB
 
-Follow these steps:
+2. **popup.js**
+   - Tab management logic
+   - UI interactions
+   - OpenAI API integration
+   - Search functionality
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. **config.js**
+   - API key management
+   - Chrome storage integration
+   - Configuration validation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. **background.js**
+   - Chrome extension background processes
+   - Tab group creation and management
+   - Event handling
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Architecture
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+TabHarmony/
+├── manifest.json      # Extension configuration
+├── popup.html        # Main UI template
+├── styles.css        # UI styling
+├── popup.js         # Core functionality
+├── config.js        # Configuration management
+├── background.js    # Background processes
+└── icons/           # Extension icons
 ```
 
-**Edit a file directly in GitHub**
+## Installation
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. **Clone or Download**
+   ```bash
+   git clone [repository-url]
+   ```
 
-**Use GitHub Codespaces**
+2. **Load in Chrome**
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" in the top right
+   - Click "Load unpacked"
+   - Select the extension directory
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+3. **Configuration**
+   - Click the TabHarmony icon in Chrome
+   - Open settings (gear icon)
+   - Enter your OpenAI API key
+   - Save settings
 
-## What technologies are used for this project?
+## Usage
 
-This project is built with .
+1. **Basic Organization**
+   - Click the TabHarmony icon in Chrome
+   - Press "Organize Tabs"
+   - Wait for AI analysis to complete
+   - View your automatically organized tabs
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+2. **Search**
+   - Type your query in the search bar
+   - Use natural language (e.g., "find my shopping tabs")
+   - Click on suggested tabs to navigate
 
-## How can I deploy this project?
+3. **Settings**
+   - Access settings via the gear icon
+   - Manage your API key
+   - View organization history
 
-Simply open [Lovable](https://lovable.dev/projects/69c8c941-7344-4b44-af15-8d7452208d79) and click on Share -> Publish.
+## Development
 
-## I want to use a custom domain - is that possible?
+### Prerequisites
+- Chrome browser
+- OpenAI API key
+- Basic understanding of Chrome extension architecture
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+### Local Development
+1. Make changes to source files
+2. Reload the extension in Chrome
+3. Test changes by clicking the extension icon
+
+### Files to Modify
+- `popup.html` for UI changes
+- `styles.css` for styling
+- `popup.js` for functionality
+- `config.js` for configuration
+- `background.js` for background processes
+
+## Use Cases
+
+1. **Research Organization**
+   - Group research materials by topic
+   - Keep academic sources separate from general browsing
+   - Quickly find related research tabs
+
+2. **Work Management**
+   - Separate work-related tabs from personal browsing
+   - Group project-specific resources
+   - Maintain focus by organizing tabs by task
+
+3. **Shopping Comparison**
+   - Group product research tabs
+   - Compare prices across different sites
+   - Keep track of wish list items
+
+4. **Content Creation**
+   - Organize reference materials
+   - Group inspiration sources
+   - Maintain separate contexts for different projects
+
+5. **Learning & Education**
+   - Group course materials
+   - Organize tutorial resources
+   - Separate study topics
+
+## Future Enhancements
+- Custom categorization rules
+- Tab group color customization
+- Export/import of tab groups
+- Cross-device synchronization
+- Advanced search filters
+- Tab analytics and insights
+
+## Support
+For issues, feature requests, or contributions, please:
+1. Check the existing issues
+2. Create a new issue with detailed information
+3. Follow the contribution guidelines
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
