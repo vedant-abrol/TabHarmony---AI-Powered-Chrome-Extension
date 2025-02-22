@@ -1,4 +1,3 @@
-
 :root {
   --background: #1a1f2c;
   --accent: #3b82f6;
@@ -215,12 +214,42 @@ main::-webkit-scrollbar-thumb {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+  position: relative;
 }
 
-.tab-group-title {
-  font-weight: 600;
-  color: var(--text);
-  font-size: 16px;
+.title-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ungroup-button {
+  opacity: 0;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+  margin-left: 8px;
+}
+
+.tab-group-header:hover .ungroup-button {
+  opacity: 1;
+}
+
+.ungroup-button:hover {
+  background: var(--accent);
+  color: white;
+  transform: scale(1.1);
 }
 
 .tab-list {

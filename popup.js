@@ -81,9 +81,34 @@ class TabHarmonyUI {
     }
 
     const tabData = tabs.map(tab => ({
+      id: tab.id,
       title: tab.title,
       url: tab.url
     }));
+
+    const systemPrompt = `You are a tab organization expert. Analyze these tabs and group them by high-level categories based on their purpose and content. Follow these guidelines:
+
+    - Group shopping sites (Amazon, eBay, etc.) together
+    - Group job sites (LinkedIn careers, Indeed, etc.) together
+    - Group development resources (GitHub, Stack Overflow, docs) together
+    - Group social media sites together
+    - Group news/media sites together
+    - Group learning/educational sites together
+    - Consider tab content and purpose, not just domains
+    - Use specific, meaningful category names
+    - Handle tabs that could fit multiple categories based on their primary purpose
+    - Don't use generic categories like "Other"
+
+    Return the result as a JSON object with this structure:
+    {
+      "groups": [
+        {
+          "name": "Category Name",
+          "color": "blue|red|yellow|green|pink|purple|cyan|orange",
+          "tabs": [tab_indices]
+        }
+      ]
+    }`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -96,11 +121,11 @@ class TabHarmonyUI {
         messages: [
           {
             role: "system",
-            content: "You are a tab organization assistant. Analyze the provided tabs and group them into meaningful categories based on their content and purpose. Return the result as a JSON object where keys are category names and values are arrays of tab indices. Be specific with categories, don't use generic terms like 'Other'."
+            content: systemPrompt
           },
           {
             role: "user",
-            content: `Analyze and group these tabs into specific categories. Consider the content, domain, and purpose of each tab: ${JSON.stringify(tabData)}`
+            content: `Analyze and group these tabs: ${JSON.stringify(tabData)}`
           }
         ]
       })
@@ -112,12 +137,15 @@ class TabHarmonyUI {
 
   parseAIResponse(response, tabs) {
     try {
-      const groupings = JSON.parse(response);
+      const parsed = JSON.parse(response);
       const result = {};
       
-      for (const [category, tabIndices] of Object.entries(groupings)) {
-        result[category] = tabIndices.map(index => tabs[index]);
-      }
+      parsed.groups.forEach(group => {
+        result[group.name] = {
+          tabs: group.tabs.map(index => tabs[index]),
+          color: group.color
+        };
+      });
       
       return result;
     } catch (error) {
@@ -132,14 +160,14 @@ class TabHarmonyUI {
           category = category.charAt(0).toUpperCase() + category.slice(1);
           
           if (!domains.has(category)) {
-            domains.set(category, []);
+            domains.set(category, { tabs: [], color: 'blue' });
           }
-          domains.get(category).push(tab);
+          domains.get(category).tabs.push(tab);
         } catch (e) {
           if (!domains.has('Uncategorized')) {
-            domains.set('Uncategorized', []);
+            domains.set('Uncategorized', { tabs: [], color: 'gray' });
           }
-          domains.get('Uncategorized').push(tab);
+          domains.get('Uncategorized').tabs.push(tab);
         }
       });
       
@@ -148,19 +176,14 @@ class TabHarmonyUI {
   }
 
   async createChromeTabGroups(groups) {
-    for (const [category, tabs] of Object.entries(groups)) {
+    for (const [category, { tabs, color }] of Object.entries(groups)) {
       if (tabs.length === 0) continue;
 
       const tabIds = tabs.map(tab => tab.id);
-      
       const groupId = await chrome.tabs.group({ tabIds });
-      
-      const colors = ['blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'];
-      const colorIndex = Math.abs(category.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % colors.length;
-      
       await chrome.tabGroups.update(groupId, {
         title: category,
-        color: colors[colorIndex]
+        color: color
       });
     }
   }
@@ -168,7 +191,7 @@ class TabHarmonyUI {
   async displayTabGroups(groups) {
     this.tabGroups.innerHTML = '';
 
-    for (const [category, tabs] of Object.entries(groups)) {
+    for (const [category, { tabs }] of Object.entries(groups)) {
       if (tabs.length === 0) continue;
 
       const groupElement = document.createElement('div');
@@ -176,10 +199,26 @@ class TabHarmonyUI {
       
       const header = document.createElement('div');
       header.className = 'tab-group-header';
-      header.innerHTML = `
+      
+      const titleContainer = document.createElement('div');
+      titleContainer.className = 'title-container';
+      titleContainer.innerHTML = `
         <h3 class="tab-group-title">${category}</h3>
         <span class="tab-count">${tabs.length} tabs</span>
       `;
+
+      const ungroupButton = document.createElement('button');
+      ungroupButton.className = 'ungroup-button';
+      ungroupButton.setAttribute('title', 'Ungroup these tabs');
+      ungroupButton.innerHTML = '×';
+      ungroupButton.addEventListener('click', async () => {
+        const tabIds = tabs.map(tab => tab.id);
+        await chrome.tabs.ungroup(tabIds);
+        groupElement.remove();
+      });
+
+      header.appendChild(titleContainer);
+      header.appendChild(ungroupButton);
 
       const buttonGroup = document.createElement('div');
       buttonGroup.className = 'button-group';
