@@ -4,6 +4,9 @@
 ## Overview
 TabHarmony is an intelligent Chrome extension that uses OpenAI's GPT API to automatically organize and manage your browser tabs. It helps users maintain a clean and organized browsing experience by intelligently grouping related tabs and providing natural language search capabilities.
 
+## Demo
+![Demo](https://github.com/user-attachments/assets/cd8aafdc-c0ae-4ab9-8c36-824ab611cfd0)
+
 ## Features
 
 ### 1. Intelligent Tab Organization
