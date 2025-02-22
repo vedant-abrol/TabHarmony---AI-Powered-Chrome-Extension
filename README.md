@@ -166,5 +166,3 @@ For issues, feature requests, or contributions, please:
 2. Create a new issue with detailed information
 3. Follow the contribution guidelines
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
