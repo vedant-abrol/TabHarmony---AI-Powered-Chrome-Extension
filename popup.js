@@ -86,29 +86,55 @@ class TabHarmonyUI {
       url: tab.url
     }));
 
-    const systemPrompt = `You are a tab organization expert. Analyze these tabs and group them by high-level categories based on their purpose and content. Follow these guidelines:
+    const systemPrompt = `You are a tab organization expert. Analyze these tabs thoroughly using:
+1. Content context and relationships
+2. User intent patterns
+3. Topic hierarchies
 
-    - Group shopping sites (Amazon, eBay, etc.) together
-    - Group job sites (LinkedIn careers, Indeed, etc.) together
-    - Group development resources (GitHub, Stack Overflow, docs) together
-    - Group social media sites together
-    - Group news/media sites together
-    - Group learning/educational sites together
-    - Consider tab content and purpose, not just domains
-    - Use specific, meaningful category names
-    - Handle tabs that could fit multiple categories based on their primary purpose
-    - Don't use generic categories like "Other"
+Group tabs into intuitive categories like:
+- AI/ML (ChatGPT, Claude, Bard, ML papers, AI documentation)
+- Development (GitHub, Stack Overflow, docs, tutorials)
+- Knowledge/Learning (courses, documentation, tutorials)
+- Shopping/E-commerce (any shopping sites)
+- Entertainment (videos, music, streaming)
+- Work/Productivity (docs, sheets, work platforms)
+- Research (papers, studies, academic sites)
+- Social (social media, communication platforms)
+- News/Media (news sites, blogs, media outlets)
 
-    Return the result as a JSON object with this structure:
+For each tab, analyze:
+- Page title
+- URL content
+- Site purpose
+- Related topics
+- Common usage patterns
+
+Return structured groups that emphasize:
+- Topical relationships (e.g., all AI tools together)
+- User workflow patterns
+- Content similarity
+- Purpose alignment
+
+Only return a JSON object with this exact structure:
+{
+  "groups": [
     {
-      "groups": [
-        {
-          "name": "Category Name",
-          "color": "blue|red|yellow|green|pink|purple|cyan|orange",
-          "tabs": [tab_indices]
-        }
-      ]
-    }`;
+      "name": "Category Name",
+      "color": "blue|red|yellow|green|pink|purple|cyan|orange",
+      "tabs": [tab_indices],
+      "description": "Brief category description"
+    }
+  ]
+}
+
+Guidelines for categorization:
+1. Group AI-related sites together (ChatGPT, Claude, Bard, etc.)
+2. Recognize when different domain tabs serve similar purposes
+3. Create logical groups based on user workflows
+4. Consider tab titles and content for context
+5. Handle multi-purpose sites based on actual usage context
+6. Use clear, specific category names
+7. Don't create "Other" or "Miscellaneous" groups`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -125,9 +151,11 @@ class TabHarmonyUI {
           },
           {
             role: "user",
-            content: `Analyze and group these tabs: ${JSON.stringify(tabData)}`
+            content: `Analyze and group these tabs with context-aware categorization: ${JSON.stringify(tabData)}`
           }
-        ]
+        ],
+        temperature: 0.7,
+        max_tokens: 2000
       })
     });
 
@@ -143,35 +171,60 @@ class TabHarmonyUI {
       parsed.groups.forEach(group => {
         result[group.name] = {
           tabs: group.tabs.map(index => tabs[index]),
-          color: group.color
+          color: group.color,
+          description: group.description
         };
       });
       
       return result;
     } catch (error) {
-      const domains = new Map();
+      console.error('AI grouping failed, falling back to domain-based grouping:', error);
       
+      const groups = new Map();
+      
+      const categorize = (tab) => {
+        const url = new URL(tab.url);
+        const domain = url.hostname.replace('www.', '');
+        const title = tab.title.toLowerCase();
+        
+        if (domain.includes('chat.openai') || domain.includes('claude') || title.includes('gpt') || title.includes('ai')) {
+          return { category: 'AI Tools', color: 'purple' };
+        } else if (domain.includes('github') || domain.includes('stackoverflow') || title.includes('docs')) {
+          return { category: 'Development', color: 'blue' };
+        } else if (domain.includes('google') && (title.includes('doc') || title.includes('sheet'))) {
+          return { category: 'Work', color: 'green' };
+        } else if (domain.includes('youtube') || domain.includes('netflix')) {
+          return { category: 'Entertainment', color: 'red' };
+        } else if (domain.includes('amazon') || domain.includes('shop') || title.includes('cart')) {
+          return { category: 'Shopping', color: 'yellow' };
+        } else if (domain.includes('mail') || domain.includes('outlook')) {
+          return { category: 'Communication', color: 'cyan' };
+        } else {
+          const category = domain.split('.')[0];
+          return { 
+            category: category.charAt(0).toUpperCase() + category.slice(1),
+            color: 'gray'
+          };
+        }
+      };
+
       tabs.forEach(tab => {
         try {
-          const url = new URL(tab.url);
-          const domain = url.hostname.replace('www.', '');
-          
-          let category = domain.split('.')[0];
-          category = category.charAt(0).toUpperCase() + category.slice(1);
-          
-          if (!domains.has(category)) {
-            domains.set(category, { tabs: [], color: 'blue' });
+          const { category, color } = categorize(tab);
+          if (!groups.has(category)) {
+            groups.set(category, { tabs: [], color });
           }
-          domains.get(category).tabs.push(tab);
+          groups.get(category).tabs.push(tab);
         } catch (e) {
-          if (!domains.has('Uncategorized')) {
-            domains.set('Uncategorized', { tabs: [], color: 'gray' });
+          console.error('Error categorizing tab:', e);
+          if (!groups.has('Uncategorized')) {
+            groups.set('Uncategorized', { tabs: [], color: 'gray' });
           }
-          domains.get('Uncategorized').tabs.push(tab);
+          groups.get('Uncategorized').tabs.push(tab);
         }
       });
       
-      return Object.fromEntries(domains);
+      return Object.fromEntries(groups);
     }
   }
 
