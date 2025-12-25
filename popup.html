@@ -8,7 +8,42 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
+  <!-- API Key Setup Screen (shown when no API key is set) -->
+  <div id="apiKeySetup" class="api-key-setup hidden">
+    <div class="setup-container">
+      <div class="setup-header">
+        <h1 id="setupTitle">Welcome to TabHarmony</h1>
+        <p id="setupSubtitle">To get started, please enter your Groq API key</p>
+      </div>
+      <div class="setup-form">
+        <div class="form-group">
+          <label for="apiKeyInput">Groq API Key</label>
+          <input 
+            type="password" 
+            id="apiKeyInput" 
+            placeholder="Enter your API key..." 
+            class="api-key-input"
+          />
+          <p class="form-hint">
+            Get your API key from <a href="https://console.groq.com/keys" target="_blank">Groq Console</a>
+          </p>
+        </div>
+        <button id="saveApiKeyButton" class="primary-button">
+          Save API Key
+        </button>
+        <div id="apiKeyError" class="error-message hidden"></div>
+        <div id="apiKeySuccess" class="success-message hidden">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>API Key saved successfully!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Screen (shown when API key is set) -->
+  <div id="mainApp" class="container hidden">
     <header>
       <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search tabs..." class="search-input">
@@ -19,6 +54,12 @@
           </svg>
         </button>
       </div>
+      <button id="settingsButton" class="icon-button" title="Change API Key">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
     </header>
 
     <main>

@@ -2,49 +2,219 @@ import Config from './config.js';
 
 class TabHarmonyUI {
   constructor() {
+    this.apiKeySetup = document.getElementById('apiKeySetup');
+    this.mainApp = document.getElementById('mainApp');
+    this.apiKeyInput = document.getElementById('apiKeyInput');
+    this.saveApiKeyButton = document.getElementById('saveApiKeyButton');
+    this.apiKeyError = document.getElementById('apiKeyError');
+    this.apiKeySuccess = document.getElementById('apiKeySuccess');
+    this.setupTitle = document.getElementById('setupTitle');
+    this.setupSubtitle = document.getElementById('setupSubtitle');
+    
     this.searchInput = document.getElementById('searchInput');
     this.searchButton = document.getElementById('searchButton');
+    this.settingsButton = document.getElementById('settingsButton');
     this.organizeButton = document.getElementById('organizeButton');
     this.tabGroups = document.getElementById('tabGroups');
     this.loadingSpinner = this.organizeButton.querySelector('.loading-spinner');
     this.buttonText = this.organizeButton.querySelector('.button-text');
     
-    this.setupEventListeners();
+    // Flags to prevent adding listeners multiple times
+    this.apiKeyListenersAdded = false;
+    this.mainListenersAdded = false;
+    
+    this.init();
   }
 
-  async setupEventListeners() {
-    this.organizeButton.addEventListener('click', () => this.organizeTabs());
-    this.searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
-    this.searchButton.addEventListener('click', () => this.handleSearch(this.searchInput.value));
-    document.getElementById('ungroupAllButton').addEventListener('click', () => this.ungroupAllTabs());
-  }
-
-  async checkApiKey() {
+  async init() {
+    // Check if API key exists
     const apiKey = await Config.getApiKey();
+    
     if (!apiKey) {
-      this.toggleSettings();
+      // Show API key setup screen
+      this.showApiKeySetup();
+    } else {
+      // Show main app
+      this.showMainApp();
     }
   }
 
-  toggleSettings() {
-    this.settingsModal.classList.toggle('hidden');
+  showApiKeySetup(isChangingKey = false) {
+    this.apiKeySetup.classList.remove('hidden');
+    this.mainApp.classList.add('hidden');
+    
+    // Update text based on context
+    if (isChangingKey) {
+      this.setupTitle.textContent = 'Change API Key';
+      this.setupSubtitle.textContent = 'Enter your new Groq API key below';
+    } else {
+      this.setupTitle.textContent = 'Welcome to TabHarmony';
+      this.setupSubtitle.textContent = 'To get started, please enter your Groq API key';
+    }
+    
+    // Reset the form state
+    this.saveApiKeyButton.disabled = false;
+    this.saveApiKeyButton.textContent = isChangingKey ? 'Update API Key' : 'Save API Key';
+    this.apiKeyInput.value = '';
+    this.hideError();
+    this.hideSuccess();
+    
+    this.setupApiKeyListeners();
+  }
+
+  showMainApp() {
+    this.apiKeySetup.classList.add('hidden');
+    this.mainApp.classList.remove('hidden');
+    
+    // Reset save button state (in case we're coming from API key setup)
+    this.saveApiKeyButton.disabled = false;
+    this.saveApiKeyButton.textContent = 'Save API Key';
+    
+    this.setupEventListeners();
+    // Load existing tab groups when popup opens
+    this.loadExistingGroups();
+  }
+
+  setupApiKeyListeners() {
+    if (this.apiKeyListenersAdded) return;
+    this.apiKeyListenersAdded = true;
+    
+    this.saveApiKeyButton.addEventListener('click', () => this.saveApiKey());
+    this.apiKeyInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        this.saveApiKey();
+      }
+    });
   }
 
   async saveApiKey() {
     const apiKey = this.apiKeyInput.value.trim();
+    
     if (!apiKey) {
-      alert('Please enter an API key');
+      this.showError('Please enter an API key');
       return;
     }
 
-    const isValid = await Config.validateApiKey(apiKey);
-    if (!isValid) {
-      alert('Invalid API key. Please check and try again.');
+    // Basic validation - Groq API keys typically start with 'gsk_'
+    if (!apiKey.startsWith('gsk_')) {
+      this.showError('Invalid API key format. Groq API keys should start with "gsk_"');
       return;
     }
 
-    await Config.setApiKey(apiKey);
-    this.toggleSettings();
+    try {
+      this.saveApiKeyButton.disabled = true;
+      this.saveApiKeyButton.textContent = 'Saving...';
+      
+      const success = await Config.setApiKey(apiKey);
+      
+      if (success) {
+        // Hide error if any
+        this.hideError();
+        // Show success message
+        this.showSuccess();
+        // Reset button state
+        this.saveApiKeyButton.disabled = false;
+        this.saveApiKeyButton.textContent = 'Save API Key';
+        // Transition to main app after a short delay so user sees the success message
+        setTimeout(() => {
+          this.showMainApp();
+        }, 1000);
+      } else {
+        this.showError('Failed to save API key. Please try again.');
+        this.saveApiKeyButton.disabled = false;
+        this.saveApiKeyButton.textContent = 'Save API Key';
+      }
+    } catch (error) {
+      console.error('Error saving API key:', error);
+      this.showError('An error occurred while saving the API key');
+      this.saveApiKeyButton.disabled = false;
+      this.saveApiKeyButton.textContent = 'Save API Key';
+    }
+  }
+
+  showError(message) {
+    this.hideSuccess();
+    this.apiKeyError.textContent = message;
+    this.apiKeyError.classList.remove('hidden');
+  }
+
+  hideError() {
+    this.apiKeyError.classList.add('hidden');
+    this.apiKeyError.textContent = '';
+  }
+
+  showSuccess() {
+    this.hideError();
+    this.apiKeySuccess.classList.remove('hidden');
+  }
+
+  hideSuccess() {
+    this.apiKeySuccess.classList.add('hidden');
+  }
+
+  changeApiKey() {
+    this.showApiKeySetup(true);
+  }
+
+  setupEventListeners() {
+    if (this.mainListenersAdded) return;
+    this.mainListenersAdded = true;
+    
+    this.organizeButton.addEventListener('click', () => this.organizeTabs());
+    this.searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+    this.searchButton.addEventListener('click', () => this.handleSearch(this.searchInput.value));
+    this.settingsButton.addEventListener('click', () => this.changeApiKey());
+    document.getElementById('ungroupAllButton').addEventListener('click', () => this.ungroupAllTabs());
+  }
+
+  // Load existing tab groups from the browser
+  async loadExistingGroups() {
+    try {
+      // Get all tab groups in the current window
+      const tabGroups = await chrome.tabGroups.query({ windowId: chrome.windows.WINDOW_ID_CURRENT });
+      
+      if (tabGroups.length === 0) {
+        console.log('No existing tab groups found');
+        return;
+      }
+
+      console.log('Found existing tab groups:', tabGroups.length);
+
+      // Get all tabs in the current window
+      const allTabs = await chrome.tabs.query({ currentWindow: true });
+
+      // Build groups object from existing Chrome tab groups
+      const groups = {};
+      
+      for (const group of tabGroups) {
+        // Find tabs that belong to this group
+        const groupTabs = allTabs.filter(tab => tab.groupId === group.id);
+        
+        if (groupTabs.length > 0) {
+          groups[group.title || 'Unnamed'] = {
+            tabs: groupTabs,
+            color: group.color || 'grey'
+          };
+        }
+      }
+
+      // Also check for ungrouped tabs (groupId is -1 or undefined for ungrouped)
+      const ungroupedTabs = allTabs.filter(tab => !tab.groupId || tab.groupId === -1);
+      if (ungroupedTabs.length > 0 && Object.keys(groups).length > 0) {
+        // Only show ungrouped if there are some grouped tabs
+        groups['Ungrouped'] = {
+          tabs: ungroupedTabs,
+          color: 'grey'
+        };
+      }
+
+      // Display the groups
+      if (Object.keys(groups).length > 0) {
+        await this.displayTabGroups(groups);
+      }
+    } catch (error) {
+      console.error('Error loading existing groups:', error);
+    }
   }
 
   setLoading(loading) {
@@ -61,365 +231,340 @@ class TabHarmonyUI {
 
   async organizeTabs() {
     try {
+      console.log('Starting organization...');
       this.setLoading(true);
       const tabs = await chrome.tabs.query({ currentWindow: true });
+      console.log('Found tabs:', tabs.length);
+      
+      // 1. Get Groups (Try AI -> Fail -> Use Backup)
       const groupedTabs = await this.analyzeAndGroupTabs(tabs);
+      console.log('Grouped tabs:', groupedTabs);
+      
+      // 2. Create Chrome Groups (Visual tabs at top of browser)
       await this.createChromeTabGroups(groupedTabs);
+      console.log('Chrome groups created');
+      
+      // 3. Display in Popup (So you can search them)
       await this.displayTabGroups(groupedTabs);
+      console.log('Display complete');
+      
     } catch (error) {
-      console.error('Error organizing tabs:', error);
-      alert('Error organizing tabs. Please check your API key and try again.');
+      console.error('Critical Failure:', error);
+      // We only alert if even the BACKUP failed (very unlikely)
+      alert(`Something went wrong: ${error.message}`);
     } finally {
       this.setLoading(false);
     }
   }
 
   async analyzeAndGroupTabs(tabs) {
-    const apiKey = await Config.getApiKey();
-    if (!apiKey) {
-      throw new Error('API key not found');
+    let apiKey = null;
+    try {
+        apiKey = await Config.getApiKey();
+    } catch (e) {
+        console.warn("Config error:", e);
     }
 
+    // Prepare data for AI
     const tabData = tabs.map(tab => ({
       id: tab.id,
       title: tab.title,
       url: tab.url
     }));
 
-    const systemPrompt = `You are a tab organization expert. Analyze these tabs thoroughly using:
-1. Content context and relationships
-2. User intent patterns
-3. Topic hierarchies
-
-Group tabs into intuitive categories like:
-- AI/ML (ChatGPT, Claude, Bard, ML papers, AI documentation)
-- Development (GitHub, Stack Overflow, docs, tutorials)
-- Knowledge/Learning (courses, documentation, tutorials)
-- Shopping/E-commerce (any shopping sites)
-- Entertainment (videos, music, streaming)
-- Work/Productivity (docs, sheets, work platforms)
-- Research (papers, studies, academic sites)
-- Social (social media, communication platforms)
-- News/Media (news sites, blogs, media outlets)
-
-For each tab, analyze:
-- Page title
-- URL content
-- Site purpose
-- Related topics
-- Common usage patterns
-
-Return structured groups that emphasize:
-- Topical relationships (e.g., all AI tools together)
-- User workflow patterns
-- Content similarity
-- Purpose alignment
-
-Only return a JSON object with this exact structure:
-{
-  "groups": [
-    {
-      "name": "Category Name",
-      "color": "blue|red|yellow|green|pink|purple|cyan|orange",
-      "tabs": [tab_indices],
-      "description": "Brief category description"
+    // If no key, skip straight to backup
+    if (!apiKey) {
+      console.log("No API Key found, using backup organization.");
+      return this.fallbackGrouping(tabs);
     }
-  ]
-}
 
-Guidelines for categorization:
-1. Group AI-related sites together (ChatGPT, Claude, Bard, etc.)
-2. Recognize when different domain tabs serve similar purposes
-3. Create logical groups based on user workflows
-4. Consider tab titles and content for context
-5. Handle multi-purpose sites based on actual usage context
-6. Use clear, specific category names
-7. Don't create "Other" or "Miscellaneous" groups`;
+    try {
+      console.log('Calling Groq API...');
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        cache: 'no-store',  // Prevent caching
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'Cache-Control': 'no-cache'
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { 
+                role: "system", 
+                content: `You are an expert browser tab organizer. Analyze each tab's URL and title to intelligently group them.
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: `Analyze and group these tabs with context-aware categorization: ${JSON.stringify(tabData)}`
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 2000
-      })
-    });
+CATEGORIZATION RULES:
+1. **AI & ML Tools** (color: purple) - ChatGPT, Claude, Gemini, Copilot, Perplexity, Hugging Face, AI image generators, ML documentation
+2. **Development** (color: blue) - GitHub, GitLab, Stack Overflow, coding docs, IDEs, localhost, API references, npm, PyPI
+3. **Work & Productivity** (color: green) - Google Docs/Sheets/Slides, Notion, Trello, Asana, Slack, Microsoft 365, Zoom, company portals
+4. **Job Search** (color: cyan) - LinkedIn Jobs, Indeed, Glassdoor, Wellfound, Lever, Greenhouse, job application portals, career pages
+5. **Email & Communication** (color: yellow) - Gmail, Outlook, Yahoo Mail, Discord, WhatsApp Web, Telegram, Messenger
+6. **Social Media** (color: pink) - Twitter/X, Facebook, Instagram, Reddit, TikTok, LinkedIn (non-job posts)
+7. **Entertainment** (color: red) - YouTube, Netflix, Spotify, Twitch, gaming sites, streaming platforms
+8. **Shopping** (color: orange) - Amazon, eBay, any e-commerce, product pages, carts, wishlists
+9. **News & Reading** (color: grey) - News sites, blogs, Medium, Substack, Wikipedia, articles
+10. **Finance** (color: green) - Banking, investments, crypto, payment services, financial dashboards
+11. **Learning** (color: blue) - Coursera, Udemy, educational sites, tutorials, documentation for learning
 
-    const data = await response.json();
-    return this.parseAIResponse(data.choices[0].message.content, tabs);
+INSTRUCTIONS:
+- Analyze BOTH the URL domain AND the page title for context
+- Group similar purposes together (e.g., all job sites in "Job Search")
+- Use specific category names, not generic ones
+- Each tab index (0-based) must appear in exactly ONE group
+- Minimum 2 tabs per group when possible; single tabs can have their own group
+
+OUTPUT FORMAT (strict JSON only, no extra text):
+{"groups":[{"name":"Category Name","color":"blue","tabs":[0,1,2]}]}
+
+Available colors: grey, blue, red, yellow, green, pink, purple, cyan, orange` 
+            },
+            { 
+                role: "user", 
+                content: `Analyze and group these ${tabData.length} browser tabs:\n${JSON.stringify(tabData, null, 2)}` 
+            }
+          ],
+          temperature: 0.1,
+          max_tokens: 1000
+        })
+      });
+
+      console.log('API Response status:', response.status);
+      
+      // If API says "Error" (like 401 Invalid Key), throw error to trigger backup
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error response:', errorText);
+        throw new Error(`API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('API Response data:', data);
+      const aiContent = data.choices[0].message.content;
+      console.log('AI Content:', aiContent);
+      
+      const parsed = this.parseAIResponse(aiContent, tabs);
+      
+      // If AI parsing returned empty, use fallback
+      if (Object.keys(parsed).length === 0) {
+        console.log('AI returned empty groups, using fallback');
+        return this.fallbackGrouping(tabs);
+      }
+      
+      return parsed;
+
+    } catch (error) {
+      console.warn('AI Failed (using backup):', error);
+      // SAFETY SHIELD: If ANYTHING goes wrong above, run this backup function
+      return this.fallbackGrouping(tabs); 
+    }
   }
 
-  parseAIResponse(response, tabs) {
+  // Backup: Groups by Website Name (e.g. "Google", "YouTube")
+  fallbackGrouping(tabs) {
+    console.log('Using fallback grouping for', tabs.length, 'tabs');
+    const groups = {};
+    const colors = ['blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'];
+    let colorIndex = 0;
+    
+    tabs.forEach(tab => {
+      try {
+        const url = new URL(tab.url);
+        // Extract "google" from "www.google.com"
+        let domain = url.hostname.replace('www.', '').split('.')[0];
+        // Capitalize it: "Google"
+        domain = domain.charAt(0).toUpperCase() + domain.slice(1);
+        
+        if (!groups[domain]) {
+          groups[domain] = { tabs: [], color: colors[colorIndex % colors.length] };
+          colorIndex++;
+        }
+        groups[domain].tabs.push(tab);
+      } catch (e) {
+        if (!groups['Other']) {
+          groups['Other'] = { tabs: [], color: 'grey' };
+        }
+        groups['Other'].tabs.push(tab);
+      }
+    });
+    
+    console.log('Fallback created groups:', Object.keys(groups));
+    return groups;
+  }
+
+  parseAIResponse(content, tabs) {
     try {
-      const parsed = JSON.parse(response);
+      console.log('Parsing AI response...');
+      // Clean up the response in case AI added extra text
+      let cleanJson = content;
+      const firstCurly = content.indexOf('{');
+      const lastCurly = content.lastIndexOf('}');
+      if (firstCurly !== -1 && lastCurly !== -1) {
+        cleanJson = content.substring(firstCurly, lastCurly + 1);
+      }
+      console.log('Clean JSON:', cleanJson);
+
+      const parsed = JSON.parse(cleanJson);
+      console.log('Parsed object:', parsed);
       const result = {};
       
+      if (!parsed.groups) throw new Error("Invalid JSON - no groups field");
+
       parsed.groups.forEach(group => {
-        result[group.name] = {
-          tabs: group.tabs.map(index => tabs[index]),
-          color: group.color,
-          description: group.description
-        };
-      });
-      
-      return result;
-    } catch (error) {
-      console.error('AI grouping failed, falling back to domain-based grouping:', error);
-      
-      const groups = new Map();
-      
-      const categorize = (tab) => {
-        const url = new URL(tab.url);
-        const domain = url.hostname.replace('www.', '');
-        const title = tab.title.toLowerCase();
+        console.log('Processing group:', group.name, 'with tab indices:', group.tabs);
+        // Match indices back to real tabs
+        const groupTabs = group.tabs
+          .map(index => tabs[index])
+          .filter(t => t !== undefined);
         
-        if (domain.includes('chat.openai') || domain.includes('claude') || title.includes('gpt') || title.includes('ai')) {
-          return { category: 'AI Tools', color: 'purple' };
-        } else if (domain.includes('github') || domain.includes('stackoverflow') || title.includes('docs')) {
-          return { category: 'Development', color: 'blue' };
-        } else if (domain.includes('google') && (title.includes('doc') || title.includes('sheet'))) {
-          return { category: 'Work', color: 'green' };
-        } else if (domain.includes('youtube') || domain.includes('netflix')) {
-          return { category: 'Entertainment', color: 'red' };
-        } else if (domain.includes('amazon') || domain.includes('shop') || title.includes('cart')) {
-          return { category: 'Shopping', color: 'yellow' };
-        } else if (domain.includes('mail') || domain.includes('outlook')) {
-          return { category: 'Communication', color: 'cyan' };
-        } else {
-          const category = domain.split('.')[0];
-          return { 
-            category: category.charAt(0).toUpperCase() + category.slice(1),
-            color: 'gray'
+        console.log('Matched tabs:', groupTabs.length);
+        
+        if (groupTabs.length > 0) {
+          result[group.name] = {
+            tabs: groupTabs,
+            color: this.isValidColor(group.color) ? group.color : 'blue'
           };
         }
-      };
-
-      tabs.forEach(tab => {
-        try {
-          const { category, color } = categorize(tab);
-          if (!groups.has(category)) {
-            groups.set(category, { tabs: [], color });
-          }
-          groups.get(category).tabs.push(tab);
-        } catch (e) {
-          console.error('Error categorizing tab:', e);
-          if (!groups.has('Uncategorized')) {
-            groups.set('Uncategorized', { tabs: [], color: 'gray' });
-          }
-          groups.get('Uncategorized').tabs.push(tab);
-        }
       });
-      
-      return Object.fromEntries(groups);
+      console.log('Final result:', result);
+      return result;
+    } catch (error) {
+      console.error('Parse error:', error);
+      throw error; // Let the catch block in analyzeAndGroupTabs handle it
     }
+  }
+
+  isValidColor(color) {
+    return ['grey', 'blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'].includes(color);
   }
 
   async createChromeTabGroups(groups) {
-    for (const [category, { tabs, color }] of Object.entries(groups)) {
-      if (tabs.length === 0) continue;
+    console.log('Creating Chrome tab groups...');
+    console.log('Groups to create:', Object.keys(groups));
+    
+    // Ungroup everything first to prevent messy merging
+    await this.ungroupAllTabs();
 
+    for (const [category, { tabs, color }] of Object.entries(groups)) {
+      console.log(`Processing category: ${category}, tabs: ${tabs?.length || 0}`);
+      if (!tabs || tabs.length === 0) continue;
       const tabIds = tabs.map(tab => tab.id);
-      const groupId = await chrome.tabs.group({ tabIds });
-      await chrome.tabGroups.update(groupId, {
-        title: category,
-        color: color
-      });
+      console.log(`Tab IDs for ${category}:`, tabIds);
+      try {
+        const groupId = await chrome.tabs.group({ tabIds });
+        await chrome.tabGroups.update(groupId, {
+          title: category,
+          color: color
+        });
+        console.log(`Created group: ${category} with ID ${groupId}`);
+      } catch (e) {
+        console.error("Chrome grouping error:", e);
+      }
     }
   }
 
   async displayTabGroups(groups) {
-    this.tabGroups.innerHTML = '';
+    this.tabGroups.innerHTML = ''; // Clear current list
 
     for (const [category, { tabs }] of Object.entries(groups)) {
-      if (tabs.length === 0) continue;
+      if (!tabs || tabs.length === 0) continue;
 
       const groupElement = document.createElement('div');
       groupElement.className = 'tab-group';
       
-      const header = document.createElement('div');
-      header.className = 'tab-group-header';
-      
-      const titleContainer = document.createElement('div');
-      titleContainer.className = 'title-container';
-      titleContainer.innerHTML = `
-        <h3 class="tab-group-title">${category}</h3>
-        <span class="tab-count">${tabs.length} tabs</span>
+      groupElement.innerHTML = `
+        <div class="tab-group-header">
+            <div class="title-container">
+                <h3 class="tab-group-title">${category}</h3>
+                <span class="tab-count">${tabs.length} tabs</span>
+            </div>
+        </div>
+        <div class="tab-list"></div>
       `;
 
-      const ungroupButton = document.createElement('button');
-      ungroupButton.className = 'ungroup-button';
-      ungroupButton.setAttribute('title', 'Ungroup these tabs');
-      ungroupButton.innerHTML = '×';
-      ungroupButton.addEventListener('click', async () => {
-        const tabIds = tabs.map(tab => tab.id);
-        await chrome.tabs.ungroup(tabIds);
-        groupElement.remove();
-      });
+      // Add close button functionality
+      const ungroupBtn = document.createElement('button');
+      ungroupBtn.className = 'ungroup-button';
+      ungroupBtn.innerHTML = '×';
+      ungroupBtn.onclick = async () => {
+          const tabIds = tabs.map(t => t.id);
+          await chrome.tabs.ungroup(tabIds);
+          groupElement.remove();
+      };
+      groupElement.querySelector('.tab-group-header').appendChild(ungroupBtn);
 
-      header.appendChild(titleContainer);
-      header.appendChild(ungroupButton);
-
-      const buttonGroup = document.createElement('div');
-      buttonGroup.className = 'button-group';
-
-      const openNewWindowButton = document.createElement('button');
-      openNewWindowButton.className = 'success-button';
-      openNewWindowButton.textContent = 'Open in New Window';
-      openNewWindowButton.addEventListener('click', async () => {
-        const tabIds = tabs.map(tab => tab.id);
-        const newWindow = await chrome.windows.create({ tabId: tabIds[0] });
-        if (tabIds.length > 1) {
-          await chrome.tabs.move(tabIds.slice(1), { windowId: newWindow.id, index: -1 });
-        }
-      });
-
-      const closeAllButton = document.createElement('button');
-      closeAllButton.className = 'danger-button';
-      closeAllButton.textContent = 'Close All';
-      closeAllButton.addEventListener('click', async () => {
-        const tabIds = tabs.map(tab => tab.id);
-        await chrome.tabs.remove(tabIds);
-        groupElement.remove();
-      });
-
-      const groupTabsButton = document.createElement('button');
-      groupTabsButton.className = 'secondary-button';
-      groupTabsButton.textContent = 'Group Tabs';
-      groupTabsButton.addEventListener('click', async () => {
-        const tabIds = tabs.map(tab => tab.id);
-        const groupId = await chrome.tabs.group({ tabIds });
-        await chrome.tabGroups.update(groupId, { title: category });
-      });
-
-      buttonGroup.appendChild(openNewWindowButton);
-      buttonGroup.appendChild(closeAllButton);
-      buttonGroup.appendChild(groupTabsButton);
-
-      const tabList = document.createElement('div');
-      tabList.className = 'tab-list';
-
+      // Add tabs to the list
+      const tabList = groupElement.querySelector('.tab-list');
       tabs.forEach(tab => {
-        const tabElement = document.createElement('div');
-        tabElement.className = 'tab-item';
-        tabElement.innerHTML = `
-          <img src="${tab.favIconUrl || 'icon.png'}" class="tab-favicon" alt="favicon">
+        const item = document.createElement('div');
+        item.className = 'tab-item';
+        item.innerHTML = `
+          <img src="${tab.favIconUrl || ''}" class="tab-favicon" onerror="this.style.display='none'">
           <span class="tab-title">${tab.title}</span>
         `;
-        tabElement.addEventListener('click', () => chrome.tabs.update(tab.id, { active: true }));
-        tabList.appendChild(tabElement);
+        // Make tab clickable
+        item.onclick = () => {
+            chrome.tabs.update(tab.id, { active: true });
+            chrome.windows.update(tab.windowId, { focused: true });
+        };
+        tabList.appendChild(item);
       });
 
-      groupElement.appendChild(header);
-      groupElement.appendChild(buttonGroup);
-      groupElement.appendChild(tabList);
       this.tabGroups.appendChild(groupElement);
     }
   }
 
+  // Local Search (Fast & Reliable)
   async handleSearch(query) {
     if (!query.trim()) {
-      return;
+        // If search is cleared, show organized groups again
+        this.organizeTabs(); 
+        return;
     }
 
-    try {
-      const tabs = await chrome.tabs.query({ currentWindow: true });
-      const apiKey = await Config.getApiKey();
+    const tabs = await chrome.tabs.query({ currentWindow: true });
+    const searchTerm = query.toLowerCase();
 
-      if (!apiKey) {
-        throw new Error('API key not found');
-      }
+    // Filter tabs locally (no API needed)
+    const matches = tabs.filter(tab => 
+        (tab.title && tab.title.toLowerCase().includes(searchTerm)) ||
+        (tab.url && tab.url.toLowerCase().includes(searchTerm))
+    );
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content: "You are a tab search assistant. Given a list of tabs and a search query, return the indices of relevant tabs as a JSON array. Consider the content, purpose, and context of the search query."
-            },
-            {
-              role: "user",
-              content: `Find tabs relevant to this query: "${query}". Return only the array of matching tab indices. Tabs: ${JSON.stringify(tabs.map((t, i) => ({ index: i, title: t.title, url: t.url })))}`
-            }
-          ]
-        })
-      });
+    // Show results
+    this.tabGroups.innerHTML = '';
+    const groupElement = document.createElement('div');
+    groupElement.className = 'tab-group';
+    groupElement.innerHTML = `
+        <div class="tab-group-header">
+            <h3 class="tab-group-title">Search Results</h3>
+            <span class="tab-count">${matches.length} matches</span>
+        </div>
+        <div class="tab-list"></div>
+    `;
 
-      const data = await response.json();
-      let relevantIndices = [];
-      
-      try {
-        relevantIndices = JSON.parse(data.choices[0].message.content);
-      } catch (e) {
-        relevantIndices = tabs.map((tab, index) => ({
-          index,
-          score: (tab.title.toLowerCase().includes(query.toLowerCase()) || 
-                 tab.url.toLowerCase().includes(query.toLowerCase())) ? 1 : 0
-        }))
-        .filter(item => item.score > 0)
-        .map(item => item.index);
-      }
-
-      this.tabGroups.innerHTML = '';
-      
-      const searchGroup = document.createElement('div');
-      searchGroup.className = 'tab-group';
-      
-      const header = document.createElement('div');
-      header.className = 'tab-group-header';
-      header.innerHTML = `
-        <h3 class="tab-group-title">Search Results</h3>
-        <span class="tab-count">${relevantIndices.length} matches</span>
-      `;
-
-      const tabList = document.createElement('div');
-      tabList.className = 'tab-list';
-
-      relevantIndices.forEach(index => {
-        const tab = tabs[index];
-        const tabElement = document.createElement('div');
-        tabElement.className = 'tab-item';
-        tabElement.innerHTML = `
-          <img src="${tab.favIconUrl || 'icon.png'}" class="tab-favicon" alt="favicon">
+    const tabList = groupElement.querySelector('.tab-list');
+    matches.forEach(tab => {
+        const item = document.createElement('div');
+        item.className = 'tab-item';
+        item.innerHTML = `
+          <img src="${tab.favIconUrl || ''}" class="tab-favicon" onerror="this.style.display='none'">
           <span class="tab-title">${tab.title}</span>
         `;
-        tabElement.addEventListener('click', () => chrome.tabs.update(tab.id, { active: true }));
-        tabList.appendChild(tabElement);
-      });
+        item.onclick = () => chrome.tabs.update(tab.id, { active: true });
+        tabList.appendChild(item);
+    });
 
-      searchGroup.appendChild(header);
-      searchGroup.appendChild(tabList);
-      this.tabGroups.appendChild(searchGroup);
-
-    } catch (error) {
-      console.error('Search error:', error);
-      alert('Error performing search. Please try again.');
-    }
+    this.tabGroups.appendChild(groupElement);
   }
 
   async ungroupAllTabs() {
     const tabs = await chrome.tabs.query({ currentWindow: true });
     const tabIds = tabs.map(tab => tab.id);
     await chrome.tabs.ungroup(tabIds);
+    // Clear the display in the popup
+    this.tabGroups.innerHTML = '';
   }
 }
 

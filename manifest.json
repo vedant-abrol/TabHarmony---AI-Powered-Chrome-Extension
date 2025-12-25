@@ -9,6 +9,9 @@
     "storage",
     "tabGroups"
   ],
+  "host_permissions": [
+    "https://api.groq.com/*"
+  ],
   "action": {
     "default_popup": "popup.html"
   },

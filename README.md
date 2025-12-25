@@ -1,171 +1,254 @@
+<p align="center">
+  <img src="https://img.shields.io/badge/Chrome-Extension-blue?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Chrome Extension" />
+  <img src="https://img.shields.io/badge/Powered%20by-Groq%20AI-orange?style=for-the-badge&logo=lightning&logoColor=white" alt="Powered by Groq" />
+  <img src="https://img.shields.io/badge/Model-Llama%203.3%2070B-purple?style=for-the-badge" alt="Llama 3.3" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License" />
+</p>
 
-# TabHarmony: AI-Powered Tab Organization Chrome Extension
+# 🎵 TabHarmony
 
-## Overview
-TabHarmony is an intelligent Chrome extension that uses OpenAI's GPT API to automatically organize and manage your browser tabs. It helps users maintain a clean and organized browsing experience by intelligently grouping related tabs and providing natural language search capabilities.
+**Your AI-powered browser tab organizer** — Transform tab chaos into organized harmony using Groq's blazing-fast Llama 3.3 70B model.
 
-## Demo
 ![Demo](https://github.com/user-attachments/assets/cd8aafdc-c0ae-4ab9-8c36-824ab611cfd0)
 
-## Features
+---
 
-### 1. Intelligent Tab Organization
-- **AI-Powered Grouping**: Uses OpenAI's GPT API to analyze tab content and group similar tabs together
-- **Automatic Categories**: Creates logical categories based on tab content (Work, Social, Shopping, News, etc.)
-- **Visual Organization**: Groups tabs with clear visual separation and intuitive interface
+## ✨ Features
 
-### 2. Smart Search
-- **Natural Language Search**: Search your tabs using everyday language
-- **AI Understanding**: Leverages GPT to understand the context of your search queries
-- **Real-time Results**: Instantly highlights and suggests relevant tabs
+| Feature | Description |
+|---------|-------------|
+| 🧠 **AI-Powered Organization** | Uses Groq's Llama 3.3 70B model to intelligently categorize tabs based on content and purpose |
+| 🏷️ **Smart Categories** | 11 intelligent categories: AI Tools, Development, Work, Job Search, Email, Social Media, Entertainment, Shopping, News, Finance, Learning |
+| 🎨 **Visual Tab Groups** | Creates color-coded Chrome tab groups for easy visual navigation |
+| 🔍 **Instant Search** | Filter through your tabs in real-time with local search |
+| 🔄 **Graceful Fallback** | Domain-based grouping when AI is unavailable |
+| 🔒 **Privacy First** | API key stored securely in Chrome's sync storage, no browsing data leaves your device |
+| ⚡ **Lightning Fast** | Powered by Groq's industry-leading inference speed |
 
-### 3. User Interface
-- **Clean Design**: Modern, minimalist interface with a beautiful blue theme
-- **Glass Morphism**: Contemporary design with subtle transparency effects
-- **Responsive Animations**: Smooth transitions and loading states for better UX
+---
 
-### 4. Security
-- **Secure API Key Storage**: Safely stores your OpenAI API key in Chrome's secure storage
-- **Privacy-Focused**: No data collection or external storage of browsing history
-- **Local Processing**: All tab organization happens locally in your browser
+## 🎯 How It Works
 
-## Technical Details
+1. **Click** the TabHarmony icon in your Chrome toolbar
+2. **Press** "Organize Tabs" 
+3. **Watch** as AI analyzes your tabs and creates organized groups
+4. **Navigate** easily with color-coded categories
 
-### Core Components
+The AI examines each tab's URL and title to determine the best category, ensuring related tabs are grouped together logically.
 
-1. **popup.html & styles.css**
-   - Main user interface
-   - Glass morphism design elements
-   - Responsive layout (400x500px)
-   - Custom color scheme:
-     - Background: #F0F8FF
-     - Accent: #1E90FF
-     - Text: #004080
-     - Highlights: #87CEEB
+---
 
-2. **popup.js**
-   - Tab management logic
-   - UI interactions
-   - OpenAI API integration
-   - Search functionality
+## 🚀 Quick Start Guide
 
-3. **config.js**
-   - API key management
-   - Chrome storage integration
-   - Configuration validation
+### Step 1: Install the Extension
 
-4. **background.js**
-   - Chrome extension background processes
-   - Tab group creation and management
-   - Event handling
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/tabharmony.git
+cd tabharmony
+```
+
+1. Open Chrome and navigate to `chrome://extensions/`
+2. Enable **"Developer mode"** (toggle in top-right corner)
+3. Click **"Load unpacked"**
+4. Select the `tabharmony` folder
+
+### Step 2: Get Your Free Groq API Key
+
+> 🎉 **Great news!** Groq offers a generous **FREE tier** — no credit card required!
+
+<details>
+<summary><b>📋 Click here for step-by-step instructions to get your API key</b></summary>
+
+#### Getting Your Free Groq API Key (2 minutes)
+
+1. **Go to Groq Console**
+   - Visit [console.groq.com](https://console.groq.com)
+
+2. **Create an Account**
+   - Click **"Sign Up"** (or "Log In" if you have an account)
+   - You can sign up with Google, GitHub, or email
+   - No credit card required!
+
+3. **Navigate to API Keys**
+   - Once logged in, click on **"API Keys"** in the left sidebar
+   - Or go directly to [console.groq.com/keys](https://console.groq.com/keys)
+
+4. **Create a New Key**
+   - Click **"Create API Key"**
+   - Give it a name like "TabHarmony"
+   - Click **"Submit"**
+
+5. **Copy Your Key**
+   - Your key will look like: `gsk_xxxxxxxxxxxxxxxxxxxx`
+   - ⚠️ **Important:** Copy it now! You won't be able to see it again
+   - Store it somewhere safe
+
+6. **Add to TabHarmony**
+   - Click the TabHarmony extension icon in Chrome
+   - Paste your API key in the input field
+   - Click **"Save API Key"**
+
+✅ **Done!** You're ready to organize your tabs with AI.
+
+---
+
+#### Groq Free Tier Limits
+
+| Resource | Free Limit |
+|----------|------------|
+| Requests per minute | 30 |
+| Requests per day | 14,400 |
+| Tokens per minute | 6,000 |
+
+This is more than enough for personal tab organization!
+
+</details>
+
+### Step 3: Start Organizing!
+
+1. Click the **TabHarmony icon** in your Chrome toolbar
+2. Enter your Groq API key when prompted
+3. Click **"Organize Tabs"** and watch the magic happen! ✨
+
+---
+
+## 📖 Usage Guide
+
+### Organizing Tabs
+
+| Action | How |
+|--------|-----|
+| **Organize all tabs** | Click the "Organize Tabs" button |
+| **Search tabs** | Type in the search bar to filter |
+| **Switch to a tab** | Click any tab in the list |
+| **Ungroup a category** | Click the × button on a group header |
+| **Ungroup all tabs** | Click "Ungroup All" button |
+| **Change API key** | Click the settings (gear) icon |
+
+### Category Colors
+
+| Category | Color | Examples |
+|----------|-------|----------|
+| AI & ML Tools | 🟣 Purple | ChatGPT, Claude, Gemini, Perplexity |
+| Development | 🔵 Blue | GitHub, Stack Overflow, VS Code docs |
+| Work & Productivity | 🟢 Green | Google Docs, Notion, Slack, Zoom |
+| Job Search | 🔵 Cyan | LinkedIn Jobs, Indeed, Glassdoor |
+| Email & Communication | 🟡 Yellow | Gmail, Outlook, Discord |
+| Social Media | 🩷 Pink | Twitter/X, Reddit, Instagram |
+| Entertainment | 🔴 Red | YouTube, Netflix, Spotify |
+| Shopping | 🟠 Orange | Amazon, eBay, product pages |
+| News & Reading | ⚪ Grey | News sites, Medium, Wikipedia |
+| Finance | 🟢 Green | Banking, investments, crypto |
+| Learning | 🔵 Blue | Coursera, Udemy, tutorials |
+
+---
+
+## 🛠️ Technical Details
 
 ### Architecture
 
 ```
-TabHarmony/
-├── manifest.json      # Extension configuration
-├── popup.html        # Main UI template
-├── styles.css        # UI styling
-├── popup.js         # Core functionality
-├── config.js        # Configuration management
-├── background.js    # Background processes
-└── icons/           # Extension icons
+tabharmony/
+├── manifest.json      # Chrome extension config (Manifest V3)
+├── popup.html         # Extension popup UI
+├── popup.js           # Core logic & AI integration
+├── styles.css         # Glass-morphism styling
+├── config.js          # Secure API key management
+└── background.js      # Service worker
 ```
 
-## Installation
+### Tech Stack
 
-1. **Clone or Download**
-   ```bash
-   git clone [repository-url]
-   ```
+- **Chrome Extension** — Manifest V3
+- **AI Provider** — Groq (Llama 3.3 70B Versatile)
+- **Storage** — Chrome Sync Storage API
+- **Tab Groups** — Chrome TabGroups API
 
-2. **Load in Chrome**
-   - Open Chrome and navigate to `chrome://extensions/`
-   - Enable "Developer mode" in the top right
-   - Click "Load unpacked"
-   - Select the extension directory
+### API Integration
 
-3. **Configuration**
-   - Click the TabHarmony icon in Chrome
-   - Open settings (gear icon)
-   - Enter your OpenAI API key
-   - Save settings
+The extension uses Groq's OpenAI-compatible API endpoint:
 
-## Usage
+```
+POST https://api.groq.com/openai/v1/chat/completions
+Model: llama-3.3-70b-versatile
+```
 
-1. **Basic Organization**
-   - Click the TabHarmony icon in Chrome
-   - Press "Organize Tabs"
-   - Wait for AI analysis to complete
-   - View your automatically organized tabs
+---
 
-2. **Search**
-   - Type your query in the search bar
-   - Use natural language (e.g., "find my shopping tabs")
-   - Click on suggested tabs to navigate
+## 🔒 Privacy & Security
 
-3. **Settings**
-   - Access settings via the gear icon
-   - Manage your API key
-   - View organization history
+- ✅ **Local Processing** — Tab analysis happens through direct API calls, no intermediary servers
+- ✅ **Secure Storage** — API key stored in Chrome's encrypted sync storage
+- ✅ **Minimal Permissions** — Only requests necessary permissions (tabs, storage, tabGroups)
+- ✅ **No Tracking** — Zero analytics, no data collection
+- ✅ **Open Source** — Full code transparency
 
-## Development
+---
 
-### Prerequisites
-- Chrome browser
-- OpenAI API key
-- Basic understanding of Chrome extension architecture
+## 🤔 FAQ
 
-### Local Development
-1. Make changes to source files
-2. Reload the extension in Chrome
-3. Test changes by clicking the extension icon
+<details>
+<summary><b>What if I don't have an API key?</b></summary>
 
-### Files to Modify
-- `popup.html` for UI changes
-- `styles.css` for styling
-- `popup.js` for functionality
-- `config.js` for configuration
-- `background.js` for background processes
+The extension will still work! It falls back to domain-based grouping, organizing tabs by website (e.g., all Google tabs together, all GitHub tabs together).
+</details>
 
-## Use Cases
+<details>
+<summary><b>Is Groq really free?</b></summary>
 
-1. **Research Organization**
-   - Group research materials by topic
-   - Keep academic sources separate from general browsing
-   - Quickly find related research tabs
+Yes! Groq offers a generous free tier with 14,400 requests per day. For personal tab organization, you'll never hit this limit.
+</details>
 
-2. **Work Management**
-   - Separate work-related tabs from personal browsing
-   - Group project-specific resources
-   - Maintain focus by organizing tabs by task
+<details>
+<summary><b>Why Groq instead of OpenAI?</b></summary>
 
-3. **Shopping Comparison**
-   - Group product research tabs
-   - Compare prices across different sites
-   - Keep track of wish list items
+Groq offers:
+- ⚡ Faster inference (up to 10x faster than OpenAI)
+- 💰 Generous free tier (no credit card required)
+- 🧠 Access to Llama 3.3 70B (powerful open-source model)
+</details>
 
-4. **Content Creation**
-   - Organize reference materials
-   - Group inspiration sources
-   - Maintain separate contexts for different projects
+<details>
+<summary><b>Can I use a different AI provider?</b></summary>
 
-5. **Learning & Education**
-   - Group course materials
-   - Organize tutorial resources
-   - Separate study topics
+Currently, TabHarmony is optimized for Groq. The codebase uses Groq's API endpoint and expects Groq API keys (starting with `gsk_`).
+</details>
 
-## Future Enhancements
-- Custom categorization rules
-- Tab group color customization
-- Export/import of tab groups
-- Cross-device synchronization
-- Advanced search filters
-- Tab analytics and insights
+---
 
-## Support
-For issues, feature requests, or contributions, please:
-1. Check the existing issues
-2. Create a new issue with detailed information
-3. Follow the contribution guidelines
+## 🚧 Roadmap
 
+- [ ] Custom category rules
+- [ ] Tab group color customization
+- [ ] Export/import tab sessions
+- [ ] Cross-device synchronization
+- [ ] Keyboard shortcuts
+- [ ] Tab analytics & insights
+- [ ] Support for multiple AI providers
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+<p align="center">
+  Made with ❤️ for organized browsing
+  <br><br>
+  <a href="https://github.com/yourusername/tabharmony">⭐ Star this repo</a> if you find it useful!
+</p>
