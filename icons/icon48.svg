@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="grad48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e9"/>
+      <stop offset="45%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#6366f1"/>
+    </linearGradient>
+    <filter id="glow48" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="48" height="48" rx="10" fill="url(#grad48)"/>
+  
+  <g opacity="0.95">
+    <rect x="7" y="10.5" width="17" height="4" rx="2" fill="white"/>
+    <rect x="7" y="17" width="17" height="4" rx="2" fill="white" opacity="0.85"/>
+    <rect x="7" y="24" width="17" height="4" rx="2" fill="white" opacity="0.72"/>
+    <rect x="7" y="31" width="12.5" height="4" rx="2" fill="white" opacity="0.58"/>
+  </g>
+  
+  <g filter="url(#glow48)">
+    <path d="M25 12 Q30 8 35 11 Q40 14 37 21 Q42 16 45 19 Q48 24 44 31 Q39 39 32 41 Q26 43 24 36 Q22 30 27 27 Q32 24 30 19 Q27 14 25 12" 
+          stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="27" cy="27" r="2" fill="white"/>
+  </g>
+</svg>

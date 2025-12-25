@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="grad128" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e9"/>
+      <stop offset="40%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#6366f1"/>
+    </linearGradient>
+    <linearGradient id="shine128" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:white;stop-opacity:0.15"/>
+      <stop offset="50%" style="stop-color:white;stop-opacity:0"/>
+    </linearGradient>
+    <filter id="glow128" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow128" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  
+  <rect width="128" height="128" rx="26" fill="url(#grad128)"/>
+  <rect width="128" height="128" rx="26" fill="url(#shine128)"/>
+  
+  <g filter="url(#shadow128)">
+    <rect x="18" y="28" width="45" height="11" rx="5.5" fill="white" opacity="0.98"/>
+    <rect x="18" y="46" width="45" height="11" rx="5.5" fill="white" opacity="0.88"/>
+    <rect x="18" y="64" width="45" height="11" rx="5.5" fill="white" opacity="0.75"/>
+    <rect x="18" y="82" width="34" height="11" rx="5.5" fill="white" opacity="0.6"/>
+  </g>
+  
+  <g filter="url(#glow128)">
+    <path d="M68 32 
+             Q80 22 92 29 
+             Q104 36 98 54 
+             Q112 42 120 52 
+             Q128 66 118 84 
+             Q104 106 86 110 
+             Q70 114 66 98
+             Q62 82 74 74
+             Q86 66 82 52
+             Q76 38 68 32" 
+          stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <circle cx="74" cy="74" r="6" fill="white"/>
+    <ellipse cx="98" cy="54" rx="4" ry="5" fill="white" opacity="0.8"/>
+  </g>
+  
+  <circle cx="108" cy="38" r="2" fill="white" opacity="0.5"/>
+  <circle cx="118" cy="58" r="1.5" fill="white" opacity="0.35"/>
+</svg>

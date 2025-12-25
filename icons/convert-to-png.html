@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Convert TabHarmony Icons to PNG</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 40px; background: #1a1a2e; color: white; }
+    h1 { background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .icons { display: flex; gap: 30px; flex-wrap: wrap; margin: 30px 0; }
+    .icon-card { background: #16213e; padding: 20px; border-radius: 12px; text-align: center; }
+    .icon-card canvas { border-radius: 8px; }
+    button { background: linear-gradient(135deg, #6366f1, #ec4899); border: none; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: 600; }
+    button:hover { opacity: 0.9; }
+    .instructions { background: #16213e; padding: 20px; border-radius: 12px; margin-top: 30px; }
+    code { background: #0f3460; padding: 2px 8px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>🎵 TabHarmony Icon Generator</h1>
+  <p>Click each button to download the PNG icons for your extension.</p>
+  
+  <div class="icons" id="icons"></div>
+  
+  <div class="instructions">
+    <h3>📋 Instructions:</h3>
+    <ol>
+      <li>Click each "Download" button to save the PNG files</li>
+      <li>Save them in the <code>icons/</code> folder with the correct names</li>
+      <li>Files needed: <code>icon16.png</code>, <code>icon32.png</code>, <code>icon48.png</code>, <code>icon128.png</code></li>
+      <li>Reload your extension in Chrome to see the new icon!</li>
+    </ol>
+  </div>
+
+  <script>
+    const sizes = [16, 32, 48, 128];
+    
+    const createSVG = (size) => {
+      const rx = Math.round(size * 0.2);
+      const tabWidth = Math.round(size * 0.35);
+      const tabHeight = Math.round(size * 0.08);
+      const tabX = Math.round(size * 0.14);
+      const tabRx = Math.round(size * 0.04);
+      
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#6366f1"/>
+            <stop offset="45%" style="stop-color:#8b5cf6"/>
+            <stop offset="100%" style="stop-color:#ec4899"/>
+          </linearGradient>
+        </defs>
+        <rect width="${size}" height="${size}" rx="${rx}" fill="url(#grad)"/>
+        
+        <!-- Tab lines -->
+        <rect x="${tabX}" y="${size*0.22}" width="${tabWidth}" height="${tabHeight}" rx="${tabRx}" fill="white" opacity="0.95"/>
+        <rect x="${tabX}" y="${size*0.36}" width="${tabWidth}" height="${tabHeight}" rx="${tabRx}" fill="white" opacity="0.85"/>
+        <rect x="${tabX}" y="${size*0.5}" width="${tabWidth}" height="${tabHeight}" rx="${tabRx}" fill="white" opacity="0.72"/>
+        <rect x="${tabX}" y="${size*0.64}" width="${tabWidth*0.75}" height="${tabHeight}" rx="${tabRx}" fill="white" opacity="0.58"/>
+        
+        <!-- Harmony wave -->
+        <path d="M${size*0.52} ${size*0.25} 
+                 Q${size*0.62} ${size*0.17} ${size*0.72} ${size*0.22} 
+                 Q${size*0.82} ${size*0.28} ${size*0.76} ${size*0.42} 
+                 Q${size*0.86} ${size*0.32} ${size*0.92} ${size*0.38} 
+                 Q${size*0.98} ${size*0.48} ${size*0.9} ${size*0.62} 
+                 Q${size*0.8} ${size*0.78} ${size*0.65} ${size*0.82} 
+                 Q${size*0.54} ${size*0.86} ${size*0.5} ${size*0.75}
+                 Q${size*0.46} ${size*0.64} ${size*0.56} ${size*0.56}
+                 Q${size*0.66} ${size*0.48} ${size*0.62} ${size*0.4}
+                 Q${size*0.56} ${size*0.3} ${size*0.52} ${size*0.25}" 
+              stroke="white" stroke-width="${Math.max(1.5, size*0.045)}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        
+        <!-- Note dot -->
+        <circle cx="${size*0.56}" cy="${size*0.56}" r="${size*0.045}" fill="white"/>
+      </svg>`;
+    };
+    
+    const container = document.getElementById('icons');
+    
+    sizes.forEach(size => {
+      const card = document.createElement('div');
+      card.className = 'icon-card';
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      canvas.style.width = `${Math.max(64, size)}px`;
+      canvas.style.height = `${Math.max(64, size)}px`;
+      
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      const svgBlob = new Blob([createSVG(size)], {type: 'image/svg+xml'});
+      const url = URL.createObjectURL(svgBlob);
+      
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
+      
+      const label = document.createElement('p');
+      label.innerHTML = `<strong>${size}×${size}</strong>`;
+      
+      const btn = document.createElement('button');
+      btn.textContent = `Download icon${size}.png`;
+      btn.onclick = () => {
+        const link = document.createElement('a');
+        link.download = `icon${size}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      };
+      
+      card.appendChild(label);
+      card.appendChild(canvas);
+      card.appendChild(document.createElement('br'));
+      card.appendChild(btn);
+      container.appendChild(card);
+    });
+  </script>
+</body>
+</html>
+
