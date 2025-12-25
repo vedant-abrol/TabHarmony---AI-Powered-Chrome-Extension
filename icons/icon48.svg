@@ -1,30 +1,51 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
   <defs>
-    <linearGradient id="grad48" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0ea5e9"/>
-      <stop offset="45%" style="stop-color:#3b82f6"/>
-      <stop offset="100%" style="stop-color:#6366f1"/>
+    <linearGradient id="blueFolder48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7CB9E8"/>
+      <stop offset="100%" style="stop-color:#5B9BD5"/>
     </linearGradient>
-    <filter id="glow48" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
+    <linearGradient id="tealFolder48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5DB5A4"/>
+      <stop offset="100%" style="stop-color:#48A999"/>
+    </linearGradient>
+    <linearGradient id="purpleFolder48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A8A4CE"/>
+      <stop offset="100%" style="stop-color:#9590C4"/>
+    </linearGradient>
+    <linearGradient id="clefGradient48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5DB5A4"/>
+      <stop offset="100%" style="stop-color:#48A999"/>
+    </linearGradient>
   </defs>
-  <rect width="48" height="48" rx="10" fill="url(#grad48)"/>
   
-  <g opacity="0.95">
-    <rect x="7" y="10.5" width="17" height="4" rx="2" fill="white"/>
-    <rect x="7" y="17" width="17" height="4" rx="2" fill="white" opacity="0.85"/>
-    <rect x="7" y="24" width="17" height="4" rx="2" fill="white" opacity="0.72"/>
-    <rect x="7" y="31" width="12.5" height="4" rx="2" fill="white" opacity="0.58"/>
-  </g>
+  <!-- Background -->
+  <rect width="48" height="48" rx="10" fill="#F5F7F9"/>
   
-  <g filter="url(#glow48)">
-    <path d="M25 12 Q30 8 35 11 Q40 14 37 21 Q42 16 45 19 Q48 24 44 31 Q39 39 32 41 Q26 43 24 36 Q22 30 27 27 Q32 24 30 19 Q27 14 25 12" 
-          stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="27" cy="27" r="2" fill="white"/>
+  <!-- Blue Folder (top) -->
+  <path d="M6 11 L6 9 Q6 6 9 6 L15 6 Q17 6 18 8 L19 11 L25 11 Q28 11 28 14 L28 18 Q28 21 25 21 L9 21 Q6 21 6 18 Z" fill="url(#blueFolder48)"/>
+  
+  <!-- Teal Folder (middle) -->
+  <path d="M6 20 L6 18 Q6 15 9 15 L15 15 Q17 15 18 17 L19 20 L25 20 Q28 20 28 23 L28 27 Q28 30 25 30 L9 30 Q6 30 6 27 Z" fill="url(#tealFolder48)"/>
+  
+  <!-- Purple Folder (bottom) -->
+  <path d="M6 29 L6 27 Q6 24 9 24 L15 24 Q17 24 18 26 L19 29 L25 29 Q28 29 28 32 L28 36 Q28 39 25 39 L9 39 Q6 39 6 36 Z" fill="url(#purpleFolder48)"/>
+  
+  <!-- Treble Clef (simplified) -->
+  <g transform="translate(26, 8)">
+    <path d="M10 3 
+             C12 1 15 2 16 5 
+             C17 8 15 11 12 14 
+             C10 16 11 18 14 18 
+             C17 18 19 15 19 12 
+             C19 9 17 8 15 8 
+             C13 8 12 10 12 12 
+             C12 14 14 16 16 18 
+             C18 20 18 23 17 26 
+             C16 28 13 30 10 30 
+             C7 30 5 28 5 25 
+             C5 22 7 20 10 20 
+             C13 20 14 22 13 24" 
+          stroke="url(#clefGradient48)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="10" cy="23" r="1.5" fill="url(#clefGradient48)"/>
   </g>
 </svg>

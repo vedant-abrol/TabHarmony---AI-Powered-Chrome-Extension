@@ -3,27 +3,32 @@
 <head>
   <title>Convert TabHarmony Icons to PNG</title>
   <style>
-    body { font-family: system-ui, sans-serif; padding: 40px; background: #1a1a2e; color: white; }
-    h1 { background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    body { font-family: system-ui, sans-serif; padding: 40px; background: #F5F7F9; color: #333; }
+    h1 { background: linear-gradient(135deg, #5DB5A4, #7CB9E8, #A8A4CE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2rem; }
     .icons { display: flex; gap: 30px; flex-wrap: wrap; margin: 30px 0; }
-    .icon-card { background: #16213e; padding: 20px; border-radius: 12px; text-align: center; }
+    .icon-card { background: white; padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
     .icon-card canvas { border-radius: 8px; }
-    button { background: linear-gradient(135deg, #6366f1, #ec4899); border: none; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: 600; }
-    button:hover { opacity: 0.9; }
-    .instructions { background: #16213e; padding: 20px; border-radius: 12px; margin-top: 30px; }
-    code { background: #0f3460; padding: 2px 8px; border-radius: 4px; }
+    button { background: linear-gradient(135deg, #5DB5A4, #48A999); border: none; color: white; padding: 12px 24px; border-radius: 10px; cursor: pointer; margin-top: 10px; font-weight: 600; transition: transform 0.2s; }
+    button:hover { transform: scale(1.02); }
+    .download-all { background: linear-gradient(135deg, #7CB9E8, #5DB5A4, #A8A4CE); font-size: 1.1rem; padding: 16px 32px; margin-bottom: 20px; }
+    .instructions { background: white; padding: 24px; border-radius: 16px; margin-top: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    code { background: #F0F4F8; padding: 3px 10px; border-radius: 6px; color: #5DB5A4; }
+    .preview { margin: 20px 0; padding: 20px; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .preview img { max-width: 200px; border-radius: 12px; }
   </style>
 </head>
 <body>
   <h1>🎵 TabHarmony Icon Generator</h1>
-  <p>Click each button to download the PNG icons for your extension.</p>
+  <p>Generate PNG icons from the new folder + treble clef design.</p>
+  
+  <button class="download-all" onclick="downloadAll()">⬇️ Download All Icons</button>
   
   <div class="icons" id="icons"></div>
   
   <div class="instructions">
     <h3>📋 Instructions:</h3>
     <ol>
-      <li>Click each "Download" button to save the PNG files</li>
+      <li>Click "Download All Icons" or download individually</li>
       <li>Save them in the <code>icons/</code> folder with the correct names</li>
       <li>Files needed: <code>icon16.png</code>, <code>icon32.png</code>, <code>icon48.png</code>, <code>icon128.png</code></li>
       <li>Reload your extension in Chrome to see the new icon!</li>
@@ -32,45 +37,63 @@
 
   <script>
     const sizes = [16, 32, 48, 128];
+    const canvases = {};
     
     const createSVG = (size) => {
-      const rx = Math.round(size * 0.2);
-      const tabWidth = Math.round(size * 0.35);
-      const tabHeight = Math.round(size * 0.08);
-      const tabX = Math.round(size * 0.14);
-      const tabRx = Math.round(size * 0.04);
+      // Scale factors based on 128px base
+      const s = size / 128;
       
       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
         <defs>
-          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#6366f1"/>
-            <stop offset="45%" style="stop-color:#8b5cf6"/>
-            <stop offset="100%" style="stop-color:#ec4899"/>
+          <linearGradient id="blueFolder" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#7CB9E8"/>
+            <stop offset="100%" style="stop-color:#5B9BD5"/>
+          </linearGradient>
+          <linearGradient id="tealFolder" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#5DB5A4"/>
+            <stop offset="100%" style="stop-color:#48A999"/>
+          </linearGradient>
+          <linearGradient id="purpleFolder" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#A8A4CE"/>
+            <stop offset="100%" style="stop-color:#9590C4"/>
+          </linearGradient>
+          <linearGradient id="clefGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#5DB5A4"/>
+            <stop offset="100%" style="stop-color:#48A999"/>
           </linearGradient>
         </defs>
-        <rect width="${size}" height="${size}" rx="${rx}" fill="url(#grad)"/>
         
-        <!-- Tab lines -->
-        <rect x="${tabX}" y="${size*0.22}" width="${tabWidth}" height="${tabHeight}" rx="${tabRx}" fill="white" opacity="0.95"/>
-        <rect x="${tabX}" y="${size*0.36}" width="${tabWidth}" height="${tabHeight}" rx="${tabRx}" fill="white" opacity="0.85"/>
-        <rect x="${tabX}" y="${size*0.5}" width="${tabWidth}" height="${tabHeight}" rx="${tabRx}" fill="white" opacity="0.72"/>
-        <rect x="${tabX}" y="${size*0.64}" width="${tabWidth*0.75}" height="${tabHeight}" rx="${tabRx}" fill="white" opacity="0.58"/>
+        <!-- Background -->
+        <rect width="${size}" height="${size}" rx="${size * 0.19}" fill="#F5F7F9"/>
         
-        <!-- Harmony wave -->
-        <path d="M${size*0.52} ${size*0.25} 
-                 Q${size*0.62} ${size*0.17} ${size*0.72} ${size*0.22} 
-                 Q${size*0.82} ${size*0.28} ${size*0.76} ${size*0.42} 
-                 Q${size*0.86} ${size*0.32} ${size*0.92} ${size*0.38} 
-                 Q${size*0.98} ${size*0.48} ${size*0.9} ${size*0.62} 
-                 Q${size*0.8} ${size*0.78} ${size*0.65} ${size*0.82} 
-                 Q${size*0.54} ${size*0.86} ${size*0.5} ${size*0.75}
-                 Q${size*0.46} ${size*0.64} ${size*0.56} ${size*0.56}
-                 Q${size*0.66} ${size*0.48} ${size*0.62} ${size*0.4}
-                 Q${size*0.56} ${size*0.3} ${size*0.52} ${size*0.25}" 
-              stroke="white" stroke-width="${Math.max(1.5, size*0.045)}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Blue Folder (top) -->
+        <path d="M${16*s} ${28*s} L${16*s} ${24*s} Q${16*s} ${18*s} ${22*s} ${18*s} L${42*s} ${18*s} Q${46*s} ${18*s} ${48*s} ${22*s} L${52*s} ${28*s} L${66*s} ${28*s} Q${72*s} ${28*s} ${72*s} ${34*s} L${72*s} ${48*s} Q${72*s} ${54*s} ${66*s} ${54*s} L${22*s} ${54*s} Q${16*s} ${54*s} ${16*s} ${48*s} Z" fill="url(#blueFolder)"/>
         
-        <!-- Note dot -->
-        <circle cx="${size*0.56}" cy="${size*0.56}" r="${size*0.045}" fill="white"/>
+        <!-- Teal Folder (middle) -->
+        <path d="M${16*s} ${52*s} L${16*s} ${48*s} Q${16*s} ${42*s} ${22*s} ${42*s} L${42*s} ${42*s} Q${46*s} ${42*s} ${48*s} ${46*s} L${52*s} ${52*s} L${66*s} ${52*s} Q${72*s} ${52*s} ${72*s} ${58*s} L${72*s} ${72*s} Q${72*s} ${78*s} ${66*s} ${78*s} L${22*s} ${78*s} Q${16*s} ${78*s} ${16*s} ${72*s} Z" fill="url(#tealFolder)"/>
+        
+        <!-- Purple Folder (bottom) -->
+        <path d="M${16*s} ${76*s} L${16*s} ${72*s} Q${16*s} ${66*s} ${22*s} ${66*s} L${42*s} ${66*s} Q${46*s} ${66*s} ${48*s} ${70*s} L${52*s} ${76*s} L${66*s} ${76*s} Q${72*s} ${76*s} ${72*s} ${82*s} L${72*s} ${96*s} Q${72*s} ${102*s} ${66*s} ${102*s} L${22*s} ${102*s} Q${16*s} ${102*s} ${16*s} ${96*s} Z" fill="url(#purpleFolder)"/>
+        
+        <!-- Treble Clef -->
+        <g transform="translate(${68*s}, ${24*s})">
+          <path d="M${28*s} ${8*s} 
+                   C${32*s} ${4*s} ${38*s} ${6*s} ${40*s} ${12*s} 
+                   C${42*s} ${18*s} ${38*s} ${26*s} ${32*s} ${32*s} 
+                   C${26*s} ${38*s} ${30*s} ${44*s} ${36*s} ${44*s} 
+                   C${42*s} ${44*s} ${46*s} ${38*s} ${46*s} ${32*s} 
+                   C${46*s} ${26*s} ${42*s} ${22*s} ${38*s} ${22*s} 
+                   C${34*s} ${22*s} ${30*s} ${26*s} ${30*s} ${32*s} 
+                   C${30*s} ${38*s} ${34*s} ${42*s} ${38*s} ${46*s} 
+                   C${42*s} ${50*s} ${44*s} ${56*s} ${42*s} ${62*s} 
+                   C${40*s} ${68*s} ${34*s} ${72*s} ${28*s} ${72*s} 
+                   C${22*s} ${72*s} ${18*s} ${68*s} ${18*s} ${62*s} 
+                   C${18*s} ${56*s} ${22*s} ${52*s} ${28*s} ${52*s} 
+                   C${34*s} ${52*s} ${36*s} ${56*s} ${34*s} ${60*s} 
+                   C${32*s} ${64*s} ${28*s} ${64*s} ${28*s} ${60*s}" 
+                stroke="url(#clefGradient)" stroke-width="${Math.max(2, 5*s)}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="${28*s}" cy="${58*s}" r="${Math.max(2, 4*s)}" fill="url(#clefGradient)"/>
+        </g>
       </svg>`;
     };
     
@@ -83,8 +106,9 @@
       const canvas = document.createElement('canvas');
       canvas.width = size;
       canvas.height = size;
-      canvas.style.width = `${Math.max(64, size)}px`;
-      canvas.style.height = `${Math.max(64, size)}px`;
+      canvas.style.width = `${Math.max(80, size)}px`;
+      canvas.style.height = `${Math.max(80, size)}px`;
+      canvases[size] = canvas;
       
       const ctx = canvas.getContext('2d');
       const img = new Image();
@@ -102,12 +126,7 @@
       
       const btn = document.createElement('button');
       btn.textContent = `Download icon${size}.png`;
-      btn.onclick = () => {
-        const link = document.createElement('a');
-        link.download = `icon${size}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      };
+      btn.onclick = () => downloadIcon(size);
       
       card.appendChild(label);
       card.appendChild(canvas);
@@ -115,7 +134,19 @@
       card.appendChild(btn);
       container.appendChild(card);
     });
+    
+    function downloadIcon(size) {
+      const link = document.createElement('a');
+      link.download = `icon${size}.png`;
+      link.href = canvases[size].toDataURL('image/png');
+      link.click();
+    }
+    
+    function downloadAll() {
+      sizes.forEach((size, i) => {
+        setTimeout(() => downloadIcon(size), i * 200);
+      });
+    }
   </script>
 </body>
 </html>
-

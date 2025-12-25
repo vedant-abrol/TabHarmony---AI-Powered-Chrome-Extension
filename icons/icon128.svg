@@ -1,53 +1,78 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <defs>
-    <linearGradient id="grad128" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0ea5e9"/>
-      <stop offset="40%" style="stop-color:#3b82f6"/>
-      <stop offset="100%" style="stop-color:#6366f1"/>
+    <!-- Folder gradients -->
+    <linearGradient id="blueFolder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7CB9E8"/>
+      <stop offset="100%" style="stop-color:#5B9BD5"/>
     </linearGradient>
-    <linearGradient id="shine128" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:white;stop-opacity:0.15"/>
-      <stop offset="50%" style="stop-color:white;stop-opacity:0"/>
+    <linearGradient id="tealFolder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5DB5A4"/>
+      <stop offset="100%" style="stop-color:#48A999"/>
     </linearGradient>
-    <filter id="glow128" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="shadow128" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.2"/>
+    <linearGradient id="purpleFolder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A8A4CE"/>
+      <stop offset="100%" style="stop-color:#9590C4"/>
+    </linearGradient>
+    <linearGradient id="clefGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5DB5A4"/>
+      <stop offset="100%" style="stop-color:#48A999"/>
+    </linearGradient>
+    <!-- Subtle shadow -->
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.1"/>
     </filter>
   </defs>
   
-  <rect width="128" height="128" rx="26" fill="url(#grad128)"/>
-  <rect width="128" height="128" rx="26" fill="url(#shine128)"/>
+  <!-- Background -->
+  <rect width="128" height="128" rx="24" fill="#F5F7F9"/>
   
-  <g filter="url(#shadow128)">
-    <rect x="18" y="28" width="45" height="11" rx="5.5" fill="white" opacity="0.98"/>
-    <rect x="18" y="46" width="45" height="11" rx="5.5" fill="white" opacity="0.88"/>
-    <rect x="18" y="64" width="45" height="11" rx="5.5" fill="white" opacity="0.75"/>
-    <rect x="18" y="82" width="34" height="11" rx="5.5" fill="white" opacity="0.6"/>
+  <!-- Blue Folder (top) -->
+  <g filter="url(#softShadow)">
+    <path d="M16 28 L16 24 Q16 18 22 18 L42 18 Q46 18 48 22 L52 28 L66 28 Q72 28 72 34 L72 48 Q72 54 66 54 L22 54 Q16 54 16 48 Z" fill="url(#blueFolder)"/>
+    <path d="M16 34 Q16 28 22 28 L66 28 Q72 28 72 34 L72 48 Q72 54 66 54 L22 54 Q16 54 16 48 Z" fill="url(#blueFolder)" opacity="0.9"/>
+    <!-- Folder shine -->
+    <path d="M20 32 Q20 30 24 30 L50 30 Q52 30 52 32 L52 36 Q52 38 50 38 L24 38 Q20 38 20 36 Z" fill="white" opacity="0.25"/>
   </g>
   
-  <g filter="url(#glow128)">
-    <path d="M68 32 
-             Q80 22 92 29 
-             Q104 36 98 54 
-             Q112 42 120 52 
-             Q128 66 118 84 
-             Q104 106 86 110 
-             Q70 114 66 98
-             Q62 82 74 74
-             Q86 66 82 52
-             Q76 38 68 32" 
-          stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    
-    <circle cx="74" cy="74" r="6" fill="white"/>
-    <ellipse cx="98" cy="54" rx="4" ry="5" fill="white" opacity="0.8"/>
+  <!-- Teal Folder (middle) -->
+  <g filter="url(#softShadow)">
+    <path d="M16 52 L16 48 Q16 42 22 42 L42 42 Q46 42 48 46 L52 52 L66 52 Q72 52 72 58 L72 72 Q72 78 66 78 L22 78 Q16 78 16 72 Z" fill="url(#tealFolder)"/>
+    <path d="M16 58 Q16 52 22 52 L66 52 Q72 52 72 58 L72 72 Q72 78 66 78 L22 78 Q16 78 16 72 Z" fill="url(#tealFolder)" opacity="0.9"/>
+    <!-- Folder shine -->
+    <path d="M20 56 Q20 54 24 54 L50 54 Q52 54 52 56 L52 60 Q52 62 50 62 L24 62 Q20 62 20 60 Z" fill="white" opacity="0.25"/>
+    <!-- Wave decoration -->
+    <path d="M24 68 Q34 64 44 68 Q54 72 64 68" stroke="white" stroke-width="1.5" fill="none" opacity="0.4" stroke-linecap="round"/>
   </g>
   
-  <circle cx="108" cy="38" r="2" fill="white" opacity="0.5"/>
-  <circle cx="118" cy="58" r="1.5" fill="white" opacity="0.35"/>
+  <!-- Purple Folder (bottom) -->
+  <g filter="url(#softShadow)">
+    <path d="M16 76 L16 72 Q16 66 22 66 L42 66 Q46 66 48 70 L52 76 L66 76 Q72 76 72 82 L72 96 Q72 102 66 102 L22 102 Q16 102 16 96 Z" fill="url(#purpleFolder)"/>
+    <path d="M16 82 Q16 76 22 76 L66 76 Q72 76 72 82 L72 96 Q72 102 66 102 L22 102 Q16 102 16 96 Z" fill="url(#purpleFolder)" opacity="0.9"/>
+    <!-- Folder shine -->
+    <path d="M20 80 Q20 78 24 78 L50 78 Q52 78 52 80 L52 84 Q52 86 50 86 L24 86 Q20 86 20 84 Z" fill="white" opacity="0.25"/>
+  </g>
+  
+  <!-- Treble Clef -->
+  <g transform="translate(68, 24)">
+    <path d="M28 8 
+             C32 4 38 6 40 12 
+             C42 18 38 26 32 32 
+             C26 38 30 44 36 44 
+             C42 44 46 38 46 32 
+             C46 26 42 22 38 22 
+             C34 22 30 26 30 32 
+             C30 38 34 42 38 46 
+             C42 50 44 56 42 62 
+             C40 68 34 72 28 72 
+             C22 72 18 68 18 62 
+             C18 56 22 52 28 52 
+             C34 52 36 56 34 60 
+             C32 64 28 64 28 60" 
+          stroke="url(#clefGradient)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Clef dot -->
+    <circle cx="28" cy="58" r="4" fill="url(#clefGradient)"/>
+  </g>
+  
+  <!-- Subtle highlight circle -->
+  <circle cx="96" cy="64" r="36" fill="none" stroke="#5DB5A4" stroke-width="0.5" opacity="0.2"/>
 </svg>
