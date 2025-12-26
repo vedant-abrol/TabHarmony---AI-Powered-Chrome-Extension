@@ -165,6 +165,36 @@ class TabHarmonyUI {
     this.searchButton.addEventListener('click', () => this.handleSearch(this.searchInput.value));
     this.settingsButton.addEventListener('click', () => this.changeApiKey());
     document.getElementById('ungroupAllButton').addEventListener('click', () => this.ungroupAllTabs());
+    document.getElementById('collapseAllButton').addEventListener('click', () => this.toggleCollapseAll());
+  }
+
+  async toggleCollapseAll() {
+    const groups = this.tabGroups.querySelectorAll('.tab-group');
+    const collapseBtn = document.getElementById('collapseAllButton');
+    const allCollapsed = Array.from(groups).every(g => g.classList.contains('collapsed'));
+    const shouldCollapse = !allCollapsed;
+    
+    // Toggle in popup UI
+    groups.forEach(group => {
+      if (shouldCollapse) {
+        group.classList.add('collapsed');
+      } else {
+        group.classList.remove('collapsed');
+      }
+    });
+    
+    // Also toggle actual Chrome tab groups
+    try {
+      const chromeGroups = await chrome.tabGroups.query({ windowId: chrome.windows.WINDOW_ID_CURRENT });
+      for (const group of chromeGroups) {
+        await chrome.tabGroups.update(group.id, { collapsed: shouldCollapse });
+      }
+    } catch (e) {
+      console.error('Error toggling Chrome tab groups:', e);
+    }
+    
+    // Rotate the chevron icon to show current state
+    collapseBtn.classList.toggle('all-collapsed', shouldCollapse);
   }
 
   // Load existing tab groups from the browser
@@ -293,27 +323,48 @@ class TabHarmonyUI {
           messages: [
             { 
                 role: "system", 
-                content: `You are an expert browser tab organizer. Analyze each tab's URL and title to intelligently group them.
+                content: `You are an expert browser tab organizer. Your PRIMARY GOAL is to REDUCE CLUTTER by grouping similar tabs together into fewer, meaningful categories.
 
-CATEGORIZATION RULES:
-1. **AI & ML Tools** (color: purple) - ChatGPT, Claude, Gemini, Copilot, Perplexity, Hugging Face, AI image generators, ML documentation
-2. **Development** (color: blue) - GitHub, GitLab, Stack Overflow, coding docs, IDEs, localhost, API references, npm, PyPI
-3. **Work & Productivity** (color: green) - Google Docs/Sheets/Slides, Notion, Trello, Asana, Slack, Microsoft 365, Zoom, company portals
-4. **Job Search** (color: cyan) - LinkedIn Jobs, Indeed, Glassdoor, Wellfound, Lever, Greenhouse, job application portals, career pages
-5. **Email & Communication** (color: yellow) - Gmail, Outlook, Yahoo Mail, Discord, WhatsApp Web, Telegram, Messenger
-6. **Social Media** (color: pink) - Twitter/X, Facebook, Instagram, Reddit, TikTok, LinkedIn (non-job posts)
-7. **Entertainment** (color: red) - YouTube, Netflix, Spotify, Twitch, gaming sites, streaming platforms
-8. **Shopping** (color: orange) - Amazon, eBay, any e-commerce, product pages, carts, wishlists
-9. **News & Reading** (color: grey) - News sites, blogs, Medium, Substack, Wikipedia, articles
-10. **Finance** (color: green) - Banking, investments, crypto, payment services, financial dashboards
-11. **Learning** (color: blue) - Coursera, Udemy, educational sites, tutorials, documentation for learning
+CRITICAL RULES:
+1. **CONSOLIDATE AGGRESSIVELY** - The goal is fewer groups, not more. Aim for 3-7 groups total.
+2. **AVOID SINGLE-TAB GROUPS** - Single-tab groups defeat the purpose. Always try to merge lone tabs into related groups.
+3. **GROUP BY SIMILARITY** - If tabs are even loosely related, put them together. Don't over-segment.
+4. **BROADER IS BETTER** - When in doubt, use a broader category that can include more tabs.
 
-INSTRUCTIONS:
-- Analyze BOTH the URL domain AND the page title for context
-- Group similar purposes together (e.g., all job sites in "Job Search")
-- Use specific category names, not generic ones
+GROUPING STRATEGY:
+- First, identify the major themes/activities across ALL tabs
+- Then assign each tab to the most fitting theme
+- If a tab doesn't fit well, find the CLOSEST match rather than creating a new group
+- Only create a new group if 2+ tabs clearly belong together and don't fit existing groups
+
+NAMING APPROACH:
+- Use context-aware names when a clear theme emerges (e.g., "React Project", "Job Hunt", "Travel Planning")
+- Use broader category names when tabs are loosely related (e.g., "Development", "Research", "Entertainment")
+- Keep names short (2-4 words max)
+
+GOOD vs BAD EXAMPLES:
+BAD (too many groups): "GitHub PR", "Stack Overflow", "NPM Docs", "VS Code" → 4 separate groups
+GOOD (consolidated): "Development" or "Coding Work" → 1 group with all 4 tabs
+
+BAD: Creating "Netflix", "YouTube", "Spotify" as 3 separate groups
+GOOD: "Entertainment" or "Media & Streaming" as 1 group
+
+COLOR GUIDELINES:
+- purple: AI/ML, creative tools
+- blue: Development, coding, learning
+- green: Work, productivity, finance
+- cyan: Job search, career
+- yellow: Communication, email
+- pink: Social media, personal
+- red: Entertainment, media
+- orange: Shopping
+- grey: News, research, misc
+
+STRICT REQUIREMENTS:
+- Target 3-7 groups maximum for most tab sets
+- Each group should have 2+ tabs (strongly preferred)
+- Single-tab groups ONLY as absolute last resort for completely unrelated tabs
 - Each tab index (0-based) must appear in exactly ONE group
-- Minimum 2 tabs per group when possible; single tabs can have their own group
 
 OUTPUT FORMAT (strict JSON only, no extra text):
 {"groups":[{"name":"Category Name","color":"blue","tabs":[0,1,2]}]}
@@ -475,7 +526,10 @@ Available colors: grey, blue, red, yellow, green, pink, purple, cyan, orange`
       
       groupElement.innerHTML = `
         <div class="tab-group-header">
-            <div class="title-container">
+            <div class="title-container clickable-header">
+                <svg class="collapse-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
                 <h3 class="tab-group-title">${category}</h3>
                 <span class="tab-count">${tabs.length} tabs</span>
             </div>
@@ -483,11 +537,32 @@ Available colors: grey, blue, red, yellow, green, pink, purple, cyan, orange`
         <div class="tab-list"></div>
       `;
 
+      // Add collapse/expand functionality
+      const titleContainer = groupElement.querySelector('.clickable-header');
+      const tabList = groupElement.querySelector('.tab-list');
+      titleContainer.onclick = async (e) => {
+          e.stopPropagation();
+          const isCollapsing = !groupElement.classList.contains('collapsed');
+          groupElement.classList.toggle('collapsed');
+          
+          // Also collapse/expand the actual Chrome tab group
+          try {
+            const chromeGroups = await chrome.tabGroups.query({ windowId: chrome.windows.WINDOW_ID_CURRENT });
+            const matchingGroup = chromeGroups.find(g => g.title === category);
+            if (matchingGroup) {
+              await chrome.tabGroups.update(matchingGroup.id, { collapsed: isCollapsing });
+            }
+          } catch (err) {
+            console.error('Error toggling Chrome group:', err);
+          }
+      };
+
       // Add close button functionality
       const ungroupBtn = document.createElement('button');
       ungroupBtn.className = 'ungroup-button';
       ungroupBtn.innerHTML = '×';
-      ungroupBtn.onclick = async () => {
+      ungroupBtn.onclick = async (e) => {
+          e.stopPropagation();
           const tabIds = tabs.map(t => t.id);
           await chrome.tabs.ungroup(tabIds);
           groupElement.remove();
@@ -495,7 +570,6 @@ Available colors: grey, blue, red, yellow, green, pink, purple, cyan, orange`
       groupElement.querySelector('.tab-group-header').appendChild(ungroupBtn);
 
       // Add tabs to the list
-      const tabList = groupElement.querySelector('.tab-list');
       tabs.forEach(tab => {
         const item = document.createElement('div');
         item.className = 'tab-item';

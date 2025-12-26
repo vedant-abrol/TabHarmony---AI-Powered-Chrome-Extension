@@ -147,6 +147,21 @@ main::-webkit-scrollbar-thumb {
   border-color: var(--accent);
 }
 
+#collapseAllButton {
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#collapseAllButton svg {
+  transition: transform 0.2s ease;
+}
+
+#collapseAllButton.all-collapsed svg {
+  transform: rotate(-90deg);
+}
+
 .danger-button {
   background: var(--danger);
   color: white;
@@ -221,6 +236,41 @@ main::-webkit-scrollbar-thumb {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.clickable-header {
+  cursor: pointer;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.clickable-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.collapse-chevron {
+  color: var(--text);
+  opacity: 0.6;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.tab-group.collapsed .collapse-chevron {
+  transform: rotate(-90deg);
+}
+
+.tab-group.collapsed .tab-list {
+  display: none;
+}
+
+.tab-group.collapsed {
+  padding-bottom: 12px;
+}
+
+.tab-group.collapsed .tab-group-header {
+  margin-bottom: 0;
 }
 
 .ungroup-button {
